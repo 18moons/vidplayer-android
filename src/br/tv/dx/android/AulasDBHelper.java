@@ -1,6 +1,7 @@
 package br.tv.dx.android;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -18,6 +19,12 @@ public class AulasDBHelper extends SQLiteOpenHelper {
 		"	file_name text," +
 		"	checked int " +
 		");";
+    
+    private static final String DATABASE_CREATE_CATEGORIES =
+    	"create table categories (" +
+		"	id_category INTEGER PRIMARY KEY," +
+		"	category text" +
+		");";
 
 
 	public AulasDBHelper(Context context) {
@@ -28,6 +35,7 @@ public class AulasDBHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
     	Log.d(TAG, "Create tables");
         db.execSQL(DATABASE_CREATE_XML_FILES);
+        db.execSQL(DATABASE_CREATE_CATEGORIES);
 	}
 
 	@Override
@@ -36,4 +44,26 @@ public class AulasDBHelper extends SQLiteOpenHelper {
 		//if ( oldVersion < 2 ) db.execSQL( "alter table ...." );	
 	}
 
+	
+	static public int getCategoryID(SQLiteDatabase db, String categoryName){
+		String args[] = {categoryName.toLowerCase()};
+		
+		Cursor stmt = db.rawQuery("select id_cetegory from categories where category = ?", args);
+		
+		if ( stmt.moveToNext() ) {
+			return stmt.getInt(0);
+		} else {
+			db.execSQL("insert or replace into categories(category) values (?)", args);
+			
+			String nullArgs[] = {};
+			stmt = db.rawQuery("select last_insert_rowid();", nullArgs);
+			
+			stmt.moveToNext();
+			return stmt.getInt(0);
+		}
+	}
+	
+	static public void setItem(SQLiteDatabase db, DXPlayerActivity.ItemData data){
+		
+	}
 }

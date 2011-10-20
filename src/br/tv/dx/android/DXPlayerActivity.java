@@ -104,13 +104,13 @@ public class DXPlayerActivity extends Activity {
 		finish();
     }
     
-    private class Attachment {
+    public class Attachment {
     	public String type;
     	public String file;
     }
     
-    private class XMLData {
-    	public String category;
+    public class ItemData {
+    	public int category;
     	public String id;
     	public String title;
     	public String subTitle;
@@ -199,7 +199,10 @@ public class DXPlayerActivity extends Activity {
     	
     	private SQLiteDatabase m_db;
     	private Stack<XMLElements> m_elements = new Stack<XMLElements>();
-    	private XMLData m_data; 
+    	
+    	private int m_category = 0;
+    	private Attachment m_attachment;
+    	private ItemData m_item; 
 
     	XMLFileHandler(SQLiteDatabase db){
     		m_db = db;
@@ -207,18 +210,74 @@ public class DXPlayerActivity extends Activity {
     	
     	@Override
     	public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
-    		m_elements.push(XMLElements.value(localName));
+    		XMLElements elem = XMLElements.value(localName);
+    		m_elements.push(elem);
+    		
+    		switch(elem){
+    		case attachment:
+    			m_attachment = new Attachment();
+    			m_attachment.type = atts.getValue("type");
+    			break;
+    		case item:
+    			m_item = new ItemData();
+    			m_item.category = m_category;
+    			break;
+    		}
     	}
     	
     	@Override
     	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
+    		if (m_elements.lastElement() == XMLElements.item){
+    			AulasDBHelper.setItem(m_db, m_item);
+    			m_item = null;
+    		}
     		m_elements.pop();
     	}
     	
     	@Override
     	public void characters(char ch[], int start, int length) {
+    		String chars = new String(ch, start, length);
+    	    chars = chars.trim();
+    	    
     		switch(m_elements.lastElement()){
     		
+    		case title:
+    			XMLElements prev = m_elements.get(m_elements.size() - 2);
+    			switch(prev){
+	    		case category:
+	    			m_category = AulasDBHelper.getCategoryID(m_db, chars);
+	    			break;
+	    		case item:
+	    			m_item.title = chars;
+	    			break;
+    			}
+    			break;
+    		
+    		case subTitle:
+    			m_item.subTitle = chars;
+    			break;
+    			
+    		case id:
+    			m_item.id = chars;
+    			break;
+    			
+    		case tag:
+    			m_item.tags.add(chars);
+    			break;
+    			
+    		case link:
+    			m_item.link = chars;
+    			break;
+    			
+    		case attachment:
+    			m_attachment.file = chars;
+    			m_item.attachments.add(m_attachment);
+    			m_attachment = null;
+    			break;
+    			
+    		case video:
+    			m_item.video = chars;
+    			break;
     		}
     	}
     }
