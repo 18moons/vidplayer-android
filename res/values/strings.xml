@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="hello">Hello World, DXPlayerActivity!</string>
-    <string name="app_name">DX Player</string>
-
+	<string name="app_name">DX Player</string>
+	<string name="sd_card_error_title">Erro</string>
+	<string name="sd_card_mount_error">(1) Erro ao tentar ao acessar os vídeos e seus dados.</string>
+	<string name="exit">Sair</string>
 </resources>
