@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,6 +25,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Window;
 
 public class DXPlayerActivity extends Activity {
@@ -96,28 +96,19 @@ public class DXPlayerActivity extends Activity {
         AulasDBHelper helper = new AulasDBHelper( this );
 		SQLiteDatabase db = helper.getWritableDatabase();
         
+		AulasDBHelper.resetFiles(db);
+		
         for(File f : files) {
-        	readDataFile(f, db);
+        	Pair<Integer, Boolean> fileId = AulasDBHelper.getFileID(db, f.getName());
+        	if (fileId.second){
+        		readDataFile(f, fileId.first, db);
+        	}
         }
         
-		startActivity(new Intent(this, CategoryViewActivity.class));		
+        AulasDBHelper.clearFiles(db);
+        
+		startActivity(new Intent(this, CategoryViewActivity.class));
 		finish();
-    }
-    
-    public class Attachment {
-    	public String type;
-    	public String file;
-    }
-    
-    public class ItemData {
-    	public int category;
-    	public String id;
-    	public String title;
-    	public String subTitle;
-    	public List<String> tags;
-    	public String link;
-    	public List<Attachment> attachments;
-    	public String video;
     }
     
     private enum XMLElements {
@@ -200,11 +191,13 @@ public class DXPlayerActivity extends Activity {
     	private SQLiteDatabase m_db;
     	private Stack<XMLElements> m_elements = new Stack<XMLElements>();
     	
+    	private int m_fileId;
     	private int m_category = 0;
-    	private Attachment m_attachment;
+    	private ItemData.Attachment m_attachment;
     	private ItemData m_item; 
 
-    	XMLFileHandler(SQLiteDatabase db){
+    	XMLFileHandler(int fileId, SQLiteDatabase db){
+    		m_fileId = fileId;
     		m_db = db;
     	}
     	
@@ -215,12 +208,13 @@ public class DXPlayerActivity extends Activity {
     		
     		switch(elem){
     		case attachment:
-    			m_attachment = new Attachment();
+    			m_attachment = new ItemData.Attachment();
     			m_attachment.type = atts.getValue("type");
     			break;
     		case item:
     			m_item = new ItemData();
     			m_item.category = m_category;
+    			m_item.file = m_fileId;
     			break;
     		}
     	}
@@ -282,7 +276,7 @@ public class DXPlayerActivity extends Activity {
     	}
     }
     
-    protected void readDataFile(File file, SQLiteDatabase db) {
+    protected void readDataFile(File file, int fileId, SQLiteDatabase db) {
     	// sax stuff
     	try {
     		SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -290,7 +284,7 @@ public class DXPlayerActivity extends Activity {
 
     		XMLReader reader = sp.getXMLReader();
 
-    		reader.setContentHandler(new XMLFileHandler(db));
+    		reader.setContentHandler(new XMLFileHandler(fileId, db));
 
     		reader.parse(new InputSource(new FileInputStream(file)));
 
@@ -322,8 +316,12 @@ public class DXPlayerActivity extends Activity {
 	        		.setMessage(R.string.sd_card_mount_error);
 	        break;
 	    case DIALOG_SD_CARD_UNKNOWN_ERROR:
-	    	 alert.setTitle(getResources().getString(R.string.sd_card_error_title))
-     				.setMessage( m_errorMessage );
+	    	if (m_errorMessage == null)
+	    		m_errorMessage = getString(R.string.sd_card_read_error);
+	    	
+	    	alert.setTitle(getResources().getString(R.string.sd_card_error_title))
+     				.setMessage(m_errorMessage);
+	    	break;
 	    default:
 	        return null;
 	    }
