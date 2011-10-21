@@ -49,7 +49,7 @@
 			android:layout_alignParentLeft="true"
 			android:layout_margin="4dip"
 			android:text="www.dx.tv.br/enem"
-			android:textColor="@android:color/white"
+			android:textColor="#0000ff"
 			android:textSize="10dip"/>
         
         <TextView 
@@ -58,10 +58,11 @@
 			android:layout_height="wrap_content"
 			android:layout_alignBottom="@id/tvLink"
 			android:layout_toRightOf="@id/tvLink"
+			android:padding="10dip"
 			android:layout_margin="4dip"
 			android:layout_marginLeft="8dip"
 			android:background="@drawable/item_bkg"
-			android:text="Fichas resumo\ndas aulas (PDF)"
+			android:text="@string/pdf_btn_text"
 			android:textColor="@android:color/white"
 			android:textSize="10dip"/>
         

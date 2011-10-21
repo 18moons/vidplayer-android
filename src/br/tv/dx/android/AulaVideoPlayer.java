@@ -40,6 +40,7 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
     		tvSubtitle.setText(m_item.subTitle);
     		tvLink.setText(m_item.link);
     		
+    		tvLink.setOnClickListener(this);
     		tvAttachment.setOnClickListener(this);
     		
     		gvTags.setAdapter(new TagsViewAdapter(m_item.tags, this));
@@ -49,6 +50,13 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()) {
+		
+		case R.id.tvLink: {
+			Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(m_item.link));
+			startActivity(myIntent);
+		}
+		break;
+		
 		case R.id.tvAttachment: {
 			File file = new File(m_item.attachments.get(0).file);
 			
@@ -70,6 +78,7 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
 			}
 		}
 		break;
+		
 		}
 	}
 }
