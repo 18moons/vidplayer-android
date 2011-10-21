@@ -28,6 +28,8 @@ public class AulasViewAdapter extends BaseAdapter {
 		
 		m_items = DXPlayerDBHelper.getItems(db, categoryId);
 		
+		db.close();
+		
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		

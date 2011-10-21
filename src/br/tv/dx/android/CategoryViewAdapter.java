@@ -28,6 +28,8 @@ public class CategoryViewAdapter extends BaseAdapter {
 		
 		m_categories = DXPlayerDBHelper.getCategories(db);
 		
+		db.close();
+		
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		

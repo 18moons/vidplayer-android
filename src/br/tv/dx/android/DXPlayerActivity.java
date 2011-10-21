@@ -178,6 +178,7 @@ public class DXPlayerActivity extends Activity {
                 }
                 
                 DXPlayerDBHelper.cleanUpDb(db);
+                db.close();
                 
                 // Make sure the splash screen is show for at least X seconds
                 try {

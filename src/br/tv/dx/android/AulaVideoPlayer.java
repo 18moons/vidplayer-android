@@ -38,6 +38,8 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
     		
     		m_item = DXPlayerDBHelper.getItem(db, extras.getInt("id"));
     		
+    		db.close();
+    		
     		tvTitle.setText(m_item.title);
     		tvSubtitle.setText(m_item.subTitle);
     		tvLink.setText(m_item.link);
