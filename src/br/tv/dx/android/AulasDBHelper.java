@@ -1,5 +1,6 @@
 package br.tv.dx.android;
 
+import br.tv.dx.android.ItemData.Attachment;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -37,6 +38,15 @@ public class AulasDBHelper extends SQLiteOpenHelper {
 		"	video text," +
 		"	constraint fk_items_files foreign key (id_file) references xml_files (id_file) on delete cascade on update cascade" +
 		");";
+
+    private static final String DATABASE_CREATE_ATTACHMENTS =
+    	"create table attachments (" +
+		"	id_attachment integer primary key," +
+		"	id_item integer," +
+		"	file_name text," +
+		"	type text," +
+		"	constraint fk_attachments_items foreign key (id_item) references items (id_item) on delete cascade on update cascade" +
+		");";
     
     private static final String DATABASE_CREATE_TAGS =
     	"create table tags (" +
@@ -63,6 +73,7 @@ public class AulasDBHelper extends SQLiteOpenHelper {
         db.execSQL(DATABASE_CREATE_XML_FILES);
         db.execSQL(DATABASE_CREATE_CATEGORIES);
         db.execSQL(DATABASE_CREATE_ITEMS);
+        db.execSQL(DATABASE_CREATE_ATTACHMENTS);
         db.execSQL(DATABASE_CREATE_TAGS);
         db.execSQL(DATABASE_CREATE_ITEMS_TAGS);
 	}
@@ -106,8 +117,9 @@ public class AulasDBHelper extends SQLiteOpenHelper {
 		db.execSQL("update xml_files set checked = 0");
 	}
 	
-	static public void clearFiles(SQLiteDatabase db){
+	static public void cleanUpDb(SQLiteDatabase db){
 		db.execSQL("delete from xml_files where checked = 0");
+		//TODO clear tags 
 	}
 	
 	static public int getCategoryID(SQLiteDatabase db, String categoryName){
@@ -115,6 +127,25 @@ public class AulasDBHelper extends SQLiteOpenHelper {
 	}
 	
 	static public void setItem(SQLiteDatabase db, ItemData data){
+		String itemArgs[] = {Integer.toString(data.file), data.title, data.subTitle, data.link, data.video};
+		db.execSQL("insert into items (id_file, title, sub_title, link, video) values (?, ?, ?, ?, ?)", itemArgs);
 		
+		String nullArgs[] = {};
+		Cursor stmt = db.rawQuery("select last_insert_rowid();", nullArgs);
+		stmt.moveToNext();
+		int itemId = stmt.getInt(0);
+		stmt = null;
+		
+		for(String tag : data.tags){
+			int tagId = getUniqueID(db, tag, "select id_tag from tags where tag = ?", "insert or replace into tags(tag) values (?)").first;
+			
+			String itemTagsArgs[] = {Integer.toString(tagId), Integer.toString(itemId)};
+			db.execSQL("insert into items_tags (id_tag, id_item) values (?, ?)", itemTagsArgs);
+		}
+		
+		for(Attachment attach : data.attachments){
+			String attachArgs[] = {Integer.toString(itemId), attach.file, attach.type};
+			db.execSQL("insert into attachments (id_tag, file_name, type) values (?, ?, ?)", attachArgs);
+		}
 	}
 }

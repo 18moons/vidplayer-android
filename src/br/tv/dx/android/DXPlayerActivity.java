@@ -105,7 +105,7 @@ public class DXPlayerActivity extends Activity {
         	}
         }
         
-        AulasDBHelper.clearFiles(db);
+        AulasDBHelper.cleanUpDb(db);
         
 		startActivity(new Intent(this, CategoryViewActivity.class));
 		finish();
