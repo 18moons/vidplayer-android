@@ -1,12 +1,15 @@
 package br.tv.dx.android;
 
-import br.tv.dx.android.ItemData.Attachment;
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.util.Pair;
+import br.tv.dx.android.ItemData.Attachment;
 
 public class AulasDBHelper extends SQLiteOpenHelper {
 	
@@ -84,7 +87,7 @@ public class AulasDBHelper extends SQLiteOpenHelper {
 		//if ( oldVersion < 2 ) db.execSQL( "alter table ...." );	
 	}
 	
-	static private Pair<Integer, Boolean> getUniqueID(SQLiteDatabase db, String arg, String select, String insert){
+	static private Pair<Integer, Boolean> getUniqueID(SQLiteDatabase db, String arg, String select, String insert) {
 		String args[] = {arg};
 		
 		Cursor stmt = db.rawQuery(select, args);
@@ -102,7 +105,7 @@ public class AulasDBHelper extends SQLiteOpenHelper {
 		}
 	}
 	
-	static public Pair<Integer, Boolean> getFileID(SQLiteDatabase db, String fileName){
+	static public Pair<Integer, Boolean> getFileID(SQLiteDatabase db, String fileName) {
 		Pair<Integer, Boolean> result = getUniqueID(db, fileName, "select id_file from xml_files where file_name = ?", "insert or replace into xml_files(file_name, checked) values (?, 1)");
 		
 		if (!result.second){
@@ -113,20 +116,37 @@ public class AulasDBHelper extends SQLiteOpenHelper {
 		return result;
 	}
 	
-	static public void resetFiles(SQLiteDatabase db){
+	static public void resetFiles(SQLiteDatabase db) {
 		db.execSQL("update xml_files set checked = 0");
 	}
 	
-	static public void cleanUpDb(SQLiteDatabase db){
+	static public void cleanUpDb(SQLiteDatabase db) {
 		db.execSQL("delete from xml_files where checked = 0");
-		//TODO clear tags 
+		//TODO clear tags
+		//TODO clear categories
 	}
 	
-	static public int getCategoryID(SQLiteDatabase db, String categoryName){
+	static public int getCategoryID(SQLiteDatabase db, String categoryName) {
 		return getUniqueID(db, categoryName, "select id_cetegory from categories where category = ?", "insert or replace into categories(category) values (?)").first;
 	}
 	
-	static public void setItem(SQLiteDatabase db, ItemData data){
+	static public List<CategoryData> getCategories(SQLiteDatabase db) {
+		List<CategoryData> result = new ArrayList<CategoryData>();
+		
+		String nullArgs[] = {};
+		Cursor stmt = db.rawQuery("select id_cetegory, category from categories order by category", nullArgs);
+		
+		while( stmt.moveToNext() ) {
+			CategoryData data = new CategoryData();
+			data.id = stmt.getInt(0);
+			data.title = stmt.getString(1);
+			result.add(data);
+		}
+				
+		return result;
+	}
+	
+	static public void setItem(SQLiteDatabase db, ItemData data) {
 		String itemArgs[] = {Integer.toString(data.file), data.title, data.subTitle, data.link, data.video};
 		db.execSQL("insert into items (id_file, title, sub_title, link, video) values (?, ?, ?, ?, ?)", itemArgs);
 		
