@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/player_text_bkp">
+        
+        <TextView 
+            android:id="@+id/tvTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_alignParentLeft="true"
+			android:layout_margin="6dip"
+			android:text="Aula 1"
+			android:textColor="@android:color/white"
+			android:textSize="20dip"/>
+        
+        <TextView 
+            android:id="@+id/tvSubtitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/tvTitle"
+			android:layout_alignParentLeft="true"
+			android:layout_margin="4dip"
+			android:text="Sub Title"
+			android:textColor="@android:color/white"
+			android:textSize="10dip"/>
+        
+        <TextView 
+            android:id="@+id/tvLink"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/tvSubtitle"
+			android:layout_alignParentLeft="true"
+			android:layout_margin="4dip"
+			android:text="www.dx.tv.br/enem"
+			android:textColor="@android:color/white"
+			android:textSize="10dip"/>
+        
+        <TextView 
+            android:id="@+id/tvAttachment"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBottom="@id/tvLink"
+			android:layout_toRightOf="@id/tvLink"
+			android:layout_margin="4dip"
+			android:layout_marginLeft="8dip"
+			android:background="@drawable/item_bkg"
+			android:text="Fichas resumo\ndas aulas (PDF)"
+			android:textColor="@android:color/white"
+			android:textSize="10dip"/>
+        
+	</RelativeLayout>
+	
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_centerHorizontal="true"
+		android:background="@drawable/player_bkg">
+	</RelativeLayout>
+</RelativeLayout>

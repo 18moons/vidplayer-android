@@ -26,10 +26,10 @@ public class CategoryViewActivity extends Activity implements OnItemClickListene
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if(parent.getId() == R.id.gvCategories) {
+		if(parent.getId() == R.id.gvCategories) { // sanity check
 			Intent intent = new Intent(this, AulasViewActivity.class);
 			
-			intent.putExtra("id", id);
+			intent.putExtra("id", (int)id);
 			intent.putExtra("title", ((CategoryData)m_adapter.getItem(position)).title);
 			
 			startActivity(intent);

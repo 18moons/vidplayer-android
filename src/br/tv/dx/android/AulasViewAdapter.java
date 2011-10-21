@@ -14,19 +14,19 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 
-public class CategoryViewAdapter extends BaseAdapter {
+public class AulasViewAdapter extends BaseAdapter {
 	
 	private Activity m_activity;
-	private List<CategoryData> m_categories;
+	private List<ItemData> m_items;
 	
 	private int m_size;
 	
-	CategoryViewAdapter(Activity activity) {
+	AulasViewAdapter(Activity activity, int categoryId) {
 		m_activity = activity;
 		DXPlayerDBHelper helper = new DXPlayerDBHelper(activity);
 		SQLiteDatabase db = helper.getReadableDatabase();
 		
-		m_categories = DXPlayerDBHelper.getCategories(db);
+		m_items = DXPlayerDBHelper.getItems(db, categoryId);
 		
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -36,17 +36,17 @@ public class CategoryViewAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return m_categories.size();
+		return m_items.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return m_categories.get(position);
+		return m_items.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return m_categories.get(position).id;
+		return m_items.get(position).id;
 	}
 
 	@Override
@@ -62,8 +62,7 @@ public class CategoryViewAdapter extends BaseAdapter {
         	textView = (TextView) convertView;
         }
 
-        textView.setText(m_categories.get(position).title);
+        textView.setText(m_items.get(position).title);
         return textView;
 	}
-
 }

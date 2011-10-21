@@ -35,11 +35,13 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
     	"create table items (" +
 		"	id_item integer primary key," +
 		"   id_file integer," +
+		"	id_category integer," +
 		"	title text," +
 		"	sub_title text," +
 		"	link text," +
 		"	video text," +
-		"	constraint fk_items_files foreign key (id_file) references xml_files (id_file) on delete cascade on update cascade" +
+		"	constraint fk_items_files foreign key (id_file) references xml_files (id_file) on delete cascade on update cascade," +
+		"	constraint fk_items_categories foreign key (id_category) references categories (id_category) on delete cascade on update cascade" +
 		");";
 
     private static final String DATABASE_CREATE_ATTACHMENTS =
@@ -94,8 +96,8 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		
 		Pair<Integer, Boolean> result;
 		
-		if ( stmt.moveToNext() ) {
-			result = new Pair<Integer, Boolean>(stmt.getInt(0),false);
+		if (stmt.moveToNext()) {
+			result = new Pair<Integer, Boolean>(stmt.getInt(0), false);
 		} else {
 			stmt.close();
 			db.execSQL(insert, args);
@@ -104,7 +106,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			stmt = db.rawQuery("select last_insert_rowid();", nullArgs);
 			
 			stmt.moveToNext();
-			result = new Pair<Integer, Boolean>(stmt.getInt(0),true);
+			result = new Pair<Integer, Boolean>(stmt.getInt(0), true);
 		}
 		
 		stmt.close();
@@ -127,7 +129,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 	}
 	
 	static public void removeFile(SQLiteDatabase db, int fileId) {
-		String args[] = { Integer.toString(fileId) };
+		String args[] = {Integer.toString(fileId)};
 		db.execSQL("delete from xml_files where id_file = ?", args);
 	}
 	
@@ -147,7 +149,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		String nullArgs[] = {};
 		Cursor stmt = db.rawQuery("select id_category, category from categories order by category", nullArgs);
 		
-		while( stmt.moveToNext() ) {
+		while(stmt.moveToNext()) {
 			CategoryData data = new CategoryData();
 			data.id = stmt.getInt(0);
 			data.title = stmt.getString(1);
@@ -159,8 +161,8 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 	}
 	
 	static public void setItem(SQLiteDatabase db, ItemData data) {
-		String itemArgs[] = {Integer.toString(data.file), data.title, data.subTitle, data.link, data.video};
-		db.execSQL("insert into items (id_file, title, sub_title, link, video) values (?, ?, ?, ?, ?)", itemArgs);
+		String itemArgs[] = {Integer.toString(data.file), Integer.toString(data.category), data.title, data.subTitle, data.link, data.video};
+		db.execSQL("insert into items (id_file, id_category, title, sub_title, link, video) values (?, ?, ?, ?, ?, ?)", itemArgs);
 		
 		String nullArgs[] = {};
 		Cursor stmt = db.rawQuery("select last_insert_rowid();", nullArgs);
@@ -180,5 +182,80 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			String attachArgs[] = {Integer.toString(itemId), attach.file, attach.type};
 			db.execSQL("insert into attachments (id_item, file_name, type) values (?, ?, ?)", attachArgs);
 		}
+	}
+	
+	static private void addItemData(SQLiteDatabase db, ItemData item) {
+		String itemId[] = {Integer.toString(item.id)};
+		
+		Cursor stmtAttach = db.rawQuery("select file_name, type from attachments where id_item = ?", itemId);
+		while(stmtAttach.moveToNext()) {
+			Attachment attach = new Attachment();
+			attach.file = stmtAttach.getString(0);
+			attach.type = stmtAttach.getString(1);
+			
+			//For now, only the first PDF is considered
+			if (attach.type == null || attach.type.compareToIgnoreCase("pdf") == 0){
+				item.attachments.add(attach);
+				break;
+			}
+		}
+		stmtAttach.close();
+		stmtAttach = null;
+		
+		Cursor stmtTags = db.rawQuery("select tags.tag from tags join items_tags on tags.id_tag == items_tags.id_tag where items_tags.id_item = ?", itemId);
+		while(stmtTags.moveToNext()) {
+			item.tags.add(stmtTags.getString(0));
+		}
+		stmtTags.close();
+		stmtTags = null;
+	}
+	
+	static public List<ItemData> getItems(SQLiteDatabase db, int categoryId) {
+		List<ItemData> result = new ArrayList<ItemData>();
+		
+		String args[] = {Integer.toString(categoryId)};
+		Cursor stmt = db.rawQuery("select id_item, id_file, title, sub_title, link, video from items where id_category = ? order by id_item", args);
+		
+		while(stmt.moveToNext()) {
+			ItemData data = new ItemData();
+			data.id = stmt.getInt(0);
+			data.file = stmt.getInt(1);
+			data.category = categoryId;
+			data.title = stmt.getString(2);
+			data.subTitle = stmt.getString(3);
+			data.link = stmt.getString(4);
+			data.video = stmt.getString(5);
+			
+			// For now, this data is not used anywhere so don't bother loading
+			//addItemData(db, data);
+			
+			result.add(data);
+		}
+		
+		stmt.close();				
+		return result;
+	}
+	
+	static public ItemData getItem(SQLiteDatabase db, int itemId) {
+		ItemData result = new ItemData();
+		
+		String args[] = {Integer.toString(itemId)};
+		Cursor stmt = db.rawQuery("select id_item, id_file, id_category, title, sub_title, link, video from items where id_item = ?", args);
+		
+		if(stmt.moveToNext()) {
+			ItemData data = new ItemData();
+			data.id = stmt.getInt(0);
+			data.file = stmt.getInt(1);
+			data.category = stmt.getInt(2);
+			data.title = stmt.getString(3);
+			data.subTitle = stmt.getString(4);
+			data.link = stmt.getString(5);
+			data.video = stmt.getString(6);
+			
+			addItemData(db, data);
+		}
+		
+		stmt.close();				
+		return result;
 	}
 }

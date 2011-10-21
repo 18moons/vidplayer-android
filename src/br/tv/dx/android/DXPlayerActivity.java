@@ -105,10 +105,8 @@ public class DXPlayerActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
-        setContentView(R.layout.main);        
+        setContentView(R.layout.main);
         
         // Check if the SD card is mounted and readable
         String state = Environment.getExternalStorageState();
@@ -118,7 +116,7 @@ public class DXPlayerActivity extends Activity {
         	return;
         }
         
-        File dir;
+        final File dir;
         
         try {
         	String path;
@@ -147,36 +145,52 @@ public class DXPlayerActivity extends Activity {
         	return;
         }
         
-        File files[] = dir.listFiles(new XmlFileNameFilter());
-        
-        //TODO Debug
-        if (files.length == 0) {
-        	debugGetFiles(dir.getAbsolutePath());
-        	files = dir.listFiles(new XmlFileNameFilter());
-        }
-        //end debug
-        
-        DXPlayerDBHelper helper = new DXPlayerDBHelper( this );
-		SQLiteDatabase db = helper.getWritableDatabase();
-        
-		DXPlayerDBHelper.resetFiles(db);
-		
-		for(File f : files) {
-        	Pair<Integer, Boolean> fileId = DXPlayerDBHelper.getFileID(db, f.getName());
-        	try {
-	        	if (fileId.second){
-	        		readDataFile(f, fileId.first, db);
-	        	}
-        	} catch(Exception e) {
-        		DXPlayerDBHelper.removeFile(db, fileId.first);
-        		Log.e(TAG, "Error reading file: " + f.getAbsolutePath(), e);
+        // Run in background thread so the UI is not frozen
+        new Thread() {
+        	@Override
+        	public void run() {
+        		long start = System.currentTimeMillis();
+        		
+        		File files[] = dir.listFiles(new XmlFileNameFilter());
+                
+                //TODO Debug
+                if (files.length == 0) {
+                	debugGetFiles(dir.getAbsolutePath());
+                	files = dir.listFiles(new XmlFileNameFilter());
+                }
+                //end debug
+                
+                DXPlayerDBHelper helper = new DXPlayerDBHelper(DXPlayerActivity.this);
+                SQLiteDatabase db = helper.getWritableDatabase();
+                
+                DXPlayerDBHelper.resetFiles(db);
+        		
+        		for(File f : files) {
+                	Pair<Integer, Boolean> fileId = DXPlayerDBHelper.getFileID(db, f.getName());
+                	try {
+        	        	if (fileId.second){
+        	        		readDataFile(f, fileId.first, db);
+        	        	}
+                	} catch(Exception e) {
+                		DXPlayerDBHelper.removeFile(db, fileId.first);
+                		Log.e(TAG, "Error reading file: " + f.getAbsolutePath(), e);
+                	}
+                }
+                
+                DXPlayerDBHelper.cleanUpDb(db);
+                
+                // Make sure the splash screen is show for at least X seconds
+                try {
+                	long time = 2000 - (System.currentTimeMillis() - start);
+                	if ( time > 0 )
+                		sleep(time);
+				} catch (InterruptedException e) {
+				}
+				
+        		startActivity(new Intent(DXPlayerActivity.this, CategoryViewActivity.class));
+        		finish();
         	}
-        }
-        
-        DXPlayerDBHelper.cleanUpDb(db);
-        
-		startActivity(new Intent(this, CategoryViewActivity.class));
-		finish();
+        }.start();
     }
     
     private enum XMLElements {
@@ -186,7 +200,6 @@ public class DXPlayerActivity extends Activity {
 		title,
 		items,
 		item,
-		id,
 		subTitle,
 		tags,
 		tag,
@@ -257,6 +270,8 @@ public class DXPlayerActivity extends Activity {
     private class XMLFileHandler extends DefaultHandler {
     	
     	private SQLiteDatabase m_db;
+    	private String m_filePath;
+    	
     	private Stack<XMLElements> m_elements = new Stack<XMLElements>();
     	
     	private int m_fileId;
@@ -264,8 +279,9 @@ public class DXPlayerActivity extends Activity {
     	private ItemData.Attachment m_attachment;
     	private ItemData m_item; 
 
-    	XMLFileHandler(int fileId, SQLiteDatabase db){
+    	XMLFileHandler(int fileId, String filePath, SQLiteDatabase db){
     		m_fileId = fileId;
+    		m_filePath = filePath;
     		m_db = db;
     	}
     	
@@ -319,10 +335,6 @@ public class DXPlayerActivity extends Activity {
     			m_item.subTitle = chars;
     			break;
     			
-    		case id:
-    			m_item.id = chars;
-    			break;
-    			
     		case tag:
     			m_item.tags.add(chars);
     			break;
@@ -332,13 +344,22 @@ public class DXPlayerActivity extends Activity {
     			break;
     			
     		case attachment:
-    			m_attachment.file = chars;
-    			m_item.attachments.add(m_attachment);
+    			try {
+					m_attachment.file = new File(m_filePath + "/" + chars).getCanonicalPath();
+					m_item.attachments.add(m_attachment);
+				} catch (IOException e) {
+					Log.e(TAG, "Attachment file not found: '" + m_filePath + "/" + chars + "'");
+				}
+    			
     			m_attachment = null;
     			break;
     			
     		case video:
-    			m_item.video = chars;
+    			try {
+					m_item.video = new File(m_filePath + "/" + chars).getCanonicalPath();
+				} catch (IOException e) {
+					Log.e(TAG, "Video file not found: '" + m_filePath + "/" + chars + "'");
+				}
     			break;
     		}
     	}
@@ -352,7 +373,7 @@ public class DXPlayerActivity extends Activity {
 
     		XMLReader reader = sp.getXMLReader();
 
-    		reader.setContentHandler(new XMLFileHandler(fileId, db));
+    		reader.setContentHandler(new XMLFileHandler(fileId, file.getParent(), db));
 
     		reader.parse(new InputSource(new FileInputStream(file)));
 

@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemData {
-    static public class Attachment {
-    	public String type;
+	static public class Attachment {
+		public String type;
     	public String file;
     }
     
     public int file;
     
 	public int category;
-	public String id;
+	public int id;
 	public String title;
 	public String subTitle;
 	public List<String> tags;
