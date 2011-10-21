@@ -4,23 +4,33 @@ import java.util.List;
 
 import android.app.Activity;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.LinearLayout.LayoutParams;
 
 public class CategoryViewAdapter extends BaseAdapter {
 	
 	private Activity m_activity;
 	private List<CategoryData> m_categories;
 	
+	private int m_size;
+	
 	CategoryViewAdapter(Activity activity) {
 		m_activity = activity;
-		AulasDBHelper helper = new AulasDBHelper(activity);
+		DXPlayerDBHelper helper = new DXPlayerDBHelper(activity);
 		SQLiteDatabase db = helper.getReadableDatabase();
 		
-		m_categories = AulasDBHelper.getCategories(db);
+		m_categories = DXPlayerDBHelper.getCategories(db);
+		
+		DisplayMetrics metrics = new DisplayMetrics();
+		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		
+		m_size = (int) (0.5 * metrics.ydpi);
 	}
 
 	@Override
@@ -40,18 +50,17 @@ public class CategoryViewAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ImageView imageView;
-        if (convertView == null) {  // if it's not recycled, initialize some attributes
-        	imageView = new ImageView(m_activity);
-            imageView.setLayoutParams(new GridView.LayoutParams( m_size, m_size ));
-            imageView.setScaleType( ImageView.ScaleType.FIT_CENTER );
-            //imageView.setPadding( m_size / 10, m_size / 10, m_size / 10, m_size / 10 );
+		TextView textView;
+        if (convertView == null) {  // if it's not recycled, initialise some attributes
+        	textView = new TextView(m_activity);
+        	textView.setLayoutParams(new GridView.LayoutParams(LayoutParams.MATCH_PARENT, m_size));
+        	textView.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);       
         } else {
-            imageView = (ImageView) convertView;
+        	textView = (TextView) convertView;
         }
 
-        imageView.setImageResource( m_wallpapers[ position ].iconId );
-        return imageView;
+        textView.setText(m_categories.get(position).title);
+        return textView;
 	}
 
 }

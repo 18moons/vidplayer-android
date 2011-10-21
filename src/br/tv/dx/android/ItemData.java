@@ -1,5 +1,6 @@
 package br.tv.dx.android;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ItemData {
@@ -18,4 +19,9 @@ public class ItemData {
 	public String link;
 	public List<Attachment> attachments;
 	public String video;
+	
+	ItemData() {
+		tags = new ArrayList<String>();
+		attachments = new ArrayList<Attachment>();
+	}
 }

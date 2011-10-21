@@ -1,15 +1,21 @@
 package br.tv.dx.android;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.http.util.ByteArrayBuffer;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -36,7 +42,6 @@ public class DXPlayerActivity extends Activity {
 	static final private int DIALOG_SD_CARD_MOUNT_ERROR = 1;
 	static final private int DIALOG_SD_CARD_ACCESS_ERROR = 2;
 	
-	
 	private String m_errorMessage;
 	
 	private class XmlFileNameFilter implements FilenameFilter {
@@ -45,6 +50,57 @@ public class DXPlayerActivity extends Activity {
 			return filename.endsWith(".xml");
 		}
 	};
+	
+	public void debugGetFiles(String outPath) {
+		String urlBase = "http://bitforge.com.br/dx-player-android/samples/";
+		try {
+			URL url = new URL(urlBase + "files.lst");
+			
+			URLConnection con = url.openConnection();
+			
+			InputStream is = con.getInputStream();
+			BufferedInputStream bis = new BufferedInputStream(is);
+			
+			ByteArrayBuffer baf = new ByteArrayBuffer(1024);
+			
+			int current = 0;
+			while ((current = bis.read()) != -1) {
+				baf.append((byte) current);
+			}
+			
+			is.close();
+			
+			for(String file : new String(baf.buffer()).split("\n")) {
+				file = file.trim();
+				if (file.length() < 5)
+					continue;
+				
+				url = new URL(urlBase + file);
+				
+				con = url.openConnection();
+				
+				is = con.getInputStream();
+				bis = new BufferedInputStream(is);
+				
+				Log.d(TAG, "downloading file: '" + outPath + "/" + file + "'");
+				FileOutputStream fos = new FileOutputStream(outPath + "/" + file);
+                
+                byte data[] = new byte[1024];
+				
+                int count;
+				while ((count = bis.read(data)) != -1) {
+					fos.write(data, 0, count);
+				}
+				
+				fos.flush();
+				fos.close();
+	            is.close();
+			}
+			
+		} catch (Exception e) {
+			Log.e(TAG, "Error", e);
+		}
+	}
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,19 +149,31 @@ public class DXPlayerActivity extends Activity {
         
         File files[] = dir.listFiles(new XmlFileNameFilter());
         
-        AulasDBHelper helper = new AulasDBHelper( this );
+        //TODO Debug
+        if (files.length == 0) {
+        	debugGetFiles(dir.getAbsolutePath());
+        	files = dir.listFiles(new XmlFileNameFilter());
+        }
+        //end debug
+        
+        DXPlayerDBHelper helper = new DXPlayerDBHelper( this );
 		SQLiteDatabase db = helper.getWritableDatabase();
         
-		AulasDBHelper.resetFiles(db);
+		DXPlayerDBHelper.resetFiles(db);
 		
-        for(File f : files) {
-        	Pair<Integer, Boolean> fileId = AulasDBHelper.getFileID(db, f.getName());
-        	if (fileId.second){
-        		readDataFile(f, fileId.first, db);
+		for(File f : files) {
+        	Pair<Integer, Boolean> fileId = DXPlayerDBHelper.getFileID(db, f.getName());
+        	try {
+	        	if (fileId.second){
+	        		readDataFile(f, fileId.first, db);
+	        	}
+        	} catch(Exception e) {
+        		DXPlayerDBHelper.removeFile(db, fileId.first);
+        		Log.e(TAG, "Error reading file: " + f.getAbsolutePath(), e);
         	}
         }
         
-        AulasDBHelper.cleanUpDb(db);
+        DXPlayerDBHelper.cleanUpDb(db);
         
 		startActivity(new Intent(this, CategoryViewActivity.class));
 		finish();
@@ -222,7 +290,7 @@ public class DXPlayerActivity extends Activity {
     	@Override
     	public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
     		if (m_elements.lastElement() == XMLElements.item){
-    			AulasDBHelper.setItem(m_db, m_item);
+    			DXPlayerDBHelper.setItem(m_db, m_item);
     			m_item = null;
     		}
     		m_elements.pop();
@@ -239,7 +307,7 @@ public class DXPlayerActivity extends Activity {
     			XMLElements prev = m_elements.get(m_elements.size() - 2);
     			switch(prev){
 	    		case category:
-	    			m_category = AulasDBHelper.getCategoryID(m_db, chars);
+	    			m_category = DXPlayerDBHelper.getCategoryID(m_db, chars);
 	    			break;
 	    		case item:
 	    			m_item.title = chars;

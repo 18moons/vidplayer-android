@@ -92,17 +92,23 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		
 		Cursor stmt = db.rawQuery(select, args);
 		
+		Pair<Integer, Boolean> result;
+		
 		if ( stmt.moveToNext() ) {
-			return new Pair<Integer, Boolean>(stmt.getInt(0),false);
+			result = new Pair<Integer, Boolean>(stmt.getInt(0),false);
 		} else {
+			stmt.close();
 			db.execSQL(insert, args);
 			
 			String nullArgs[] = {};
 			stmt = db.rawQuery("select last_insert_rowid();", nullArgs);
 			
 			stmt.moveToNext();
-			return new Pair<Integer, Boolean>(stmt.getInt(0),true);
+			result = new Pair<Integer, Boolean>(stmt.getInt(0),true);
 		}
+		
+		stmt.close();
+		return result;
 	}
 	
 	static public Pair<Integer, Boolean> getFileID(SQLiteDatabase db, String fileName) {
@@ -120,6 +126,11 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		db.execSQL("update xml_files set checked = 0");
 	}
 	
+	static public void removeFile(SQLiteDatabase db, int fileId) {
+		String args[] = { Integer.toString(fileId) };
+		db.execSQL("delete from xml_files where id_file = ?", args);
+	}
+	
 	static public void cleanUpDb(SQLiteDatabase db) {
 		db.execSQL("delete from xml_files where checked = 0");
 		//TODO clear tags
@@ -127,14 +138,14 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 	}
 	
 	static public int getCategoryID(SQLiteDatabase db, String categoryName) {
-		return getUniqueID(db, categoryName, "select id_cetegory from categories where category = ?", "insert or replace into categories(category) values (?)").first;
+		return getUniqueID(db, categoryName, "select id_category from categories where category = ?", "insert or replace into categories(category) values (?)").first;
 	}
 	
 	static public List<CategoryData> getCategories(SQLiteDatabase db) {
 		List<CategoryData> result = new ArrayList<CategoryData>();
 		
 		String nullArgs[] = {};
-		Cursor stmt = db.rawQuery("select id_cetegory, category from categories order by category", nullArgs);
+		Cursor stmt = db.rawQuery("select id_category, category from categories order by category", nullArgs);
 		
 		while( stmt.moveToNext() ) {
 			CategoryData data = new CategoryData();
@@ -142,7 +153,8 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			data.title = stmt.getString(1);
 			result.add(data);
 		}
-				
+		
+		stmt.close();				
 		return result;
 	}
 	
@@ -154,6 +166,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		Cursor stmt = db.rawQuery("select last_insert_rowid();", nullArgs);
 		stmt.moveToNext();
 		int itemId = stmt.getInt(0);
+		stmt.close();
 		stmt = null;
 		
 		for(String tag : data.tags){
@@ -165,7 +178,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		
 		for(Attachment attach : data.attachments){
 			String attachArgs[] = {Integer.toString(itemId), attach.file, attach.type};
-			db.execSQL("insert into attachments (id_tag, file_name, type) values (?, ?, ?)", attachArgs);
+			db.execSQL("insert into attachments (id_item, file_name, type) values (?, ?, ?)", attachArgs);
 		}
 	}
 }
