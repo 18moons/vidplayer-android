@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,12 +27,12 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
     	TextView tvSubtitle = (TextView)findViewById(R.id.tvSubtitle);
     	TextView tvLink = (TextView)findViewById(R.id.tvLink);
     	TextView tvAttachment = (TextView)findViewById(R.id.tvAttachment);
-    	
+    	GridView gvTags = (GridView)findViewById(R.id.gvTags);
     	
     	Bundle extras = getIntent().getExtras();
     	if (extras.containsKey("id")) {
     		DXPlayerDBHelper helper = new DXPlayerDBHelper(this);
-    		SQLiteDatabase db = helper.getWritableDatabase();
+    		SQLiteDatabase db = helper.getReadableDatabase();
     		
     		m_item = DXPlayerDBHelper.getItem(db, extras.getInt("id"));
     		
@@ -40,6 +41,8 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
     		tvLink.setText(m_item.link);
     		
     		tvAttachment.setOnClickListener(this);
+    		
+    		gvTags.setAdapter(new TagsViewAdapter(m_item.tags, this));
     	}
 	}
 
