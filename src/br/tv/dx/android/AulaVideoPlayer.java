@@ -27,6 +27,8 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
     	TextView tvSubtitle = (TextView)findViewById(R.id.tvSubtitle);
     	TextView tvLink = (TextView)findViewById(R.id.tvLink);
     	TextView tvAttachment = (TextView)findViewById(R.id.tvAttachment);
+    	TextView tvBack = (TextView)findViewById(R.id.tvBack);
+    	
     	GridView gvTags = (GridView)findViewById(R.id.gvTags);
     	
     	Bundle extras = getIntent().getExtras();
@@ -42,6 +44,7 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
     		
     		tvLink.setOnClickListener(this);
     		tvAttachment.setOnClickListener(this);
+    		tvBack.setOnClickListener(this);
     		
     		gvTags.setAdapter(new TagsViewAdapter(m_item.tags, this));
     	}
@@ -50,6 +53,11 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		switch(v.getId()) {
+		
+		case R.id.tvBack: {
+			finish();
+		}
+		break;
 		
 		case R.id.tvLink: {
 			Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(m_item.link));

@@ -68,11 +68,85 @@
         
 	</RelativeLayout>
 	
+	<TextView 
+            android:id="@+id/tvBack"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentTop="true"
+			android:padding="10dip"
+			android:background="@drawable/player_text_bkp"
+			android:text="@string/back"
+			android:textColor="@android:color/white"
+			android:textSize="20dip"/>
+        
 	<RelativeLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="30dip"
 		android:layout_alignParentBottom="true"
 		android:layout_centerHorizontal="true"
 		android:background="@drawable/player_bkg">
+        
+	    <ImageView
+	        android:id="@+id/play_restart"
+	        android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentBottom="true"
+			android:layout_margin="4dip"
+			android:background="@drawable/play_restart"/>
+	    
+	    <ImageView
+	        android:id="@+id/play_back"
+	        android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_toRightOf="@id/play_restart"
+			android:layout_alignParentBottom="true"
+			android:layout_margin="4dip"
+			android:background="@drawable/play_back"/>
+	    
+	    <ImageView
+	        android:id="@+id/play_start"
+	        android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_toRightOf="@id/play_back"
+			android:layout_alignParentBottom="true"
+			android:layout_margin="4dip"
+			android:background="@drawable/play_start"/>
+	    
+	    <ImageView
+	        android:id="@+id/play_fforward"
+	        android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_toRightOf="@id/play_start"
+			android:layout_alignParentBottom="true"
+			android:layout_margin="4dip"
+			android:background="@drawable/play_fforward"/>
+	    
+	    <TextView 
+	        android:id="@+id/tvProgress"
+	        android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentBottom="true"
+			android:layout_margin="4dip"
+			android:gravity="center"
+			android:text="00:00:00 / 00:00:00"
+			android:textColor="@android:color/white"/>
+	    
+	    <RelativeLayout 
+	        android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_toRightOf="@id/play_fforward"
+			android:layout_toLeftOf="@id/tvProgress"
+			android:layout_alignParentBottom="true">
+			
+		    <ProgressBar
+		        android:id="@+id/pb_video"
+		        android:layout_width="match_parent"
+				android:layout_height="8dip"
+				android:layout_centerInParent="true"
+				style="?android:attr/progressBarStyleHorizontal" />
+	    </RelativeLayout>
 	</RelativeLayout>
 </RelativeLayout>
