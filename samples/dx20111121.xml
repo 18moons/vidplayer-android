@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dxtv> 
 	<category>
-		<title>Biologia</title>
+		<title>Administração</title>
 		<items>
 			<item>
 				<title>Célula</title>
@@ -199,7 +199,7 @@
 	</category>
 	
 	<category>
-		<title>Física</title>
+		<title>Enologia</title>
 		<items>
 			<item>
 				<title>Célula</title>
@@ -397,7 +397,7 @@
 	</category>
 	
 	<category>
-		<title>Geografia</title>
+		<title>Cartografia</title>
 		<items>
 			<item>
 				<title>Célula</title>
@@ -595,7 +595,7 @@
 	</category>
 	
 	<category>
-		<title>História</title>
+		<title>Ubanda</title>
 		<items>
 			<item>
 				<title>Célula</title>
@@ -793,7 +793,7 @@
 	</category>
 	
 	<category>
-		<title>Matemática</title>
+		<title>Zoologia</title>
 		<items>
 			<item>
 				<title>Célula</title>
