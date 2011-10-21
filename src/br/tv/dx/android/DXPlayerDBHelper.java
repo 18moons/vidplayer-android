@@ -243,16 +243,15 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		Cursor stmt = db.rawQuery("select id_item, id_file, id_category, title, sub_title, link, video from items where id_item = ?", args);
 		
 		if(stmt.moveToNext()) {
-			ItemData data = new ItemData();
-			data.id = stmt.getInt(0);
-			data.file = stmt.getInt(1);
-			data.category = stmt.getInt(2);
-			data.title = stmt.getString(3);
-			data.subTitle = stmt.getString(4);
-			data.link = stmt.getString(5);
-			data.video = stmt.getString(6);
+			result.id = stmt.getInt(0);
+			result.file = stmt.getInt(1);
+			result.category = stmt.getInt(2);
+			result.title = stmt.getString(3);
+			result.subTitle = stmt.getString(4);
+			result.link = stmt.getString(5);
+			result.video = stmt.getString(6);
 			
-			addItemData(db, data);
+			addItemData(db, result);
 		}
 		
 		stmt.close();				

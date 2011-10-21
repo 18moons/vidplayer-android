@@ -244,7 +244,7 @@ public class DXPlayerActivity extends Activity {
     			}
     			break;
     		case 's':
-    			if(str.equals("subTitle")) {
+    			if(str.equals("subtitle")) {
     				return XMLElements.subTitle;
     			}
     			break;

@@ -1,11 +1,17 @@
 package br.tv.dx.android;
 
+import java.io.File;
+
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class AulaVideoPlayer extends Activity implements OnClickListener {
 
@@ -24,9 +30,9 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
     	
     	Bundle extras = getIntent().getExtras();
     	if (extras.containsKey("id")) {
-    		DXPlayerDBHelper helper = new DXPlayerDBHelper( this );
-    		 SQLiteDatabase db = helper.getWritableDatabase();
-    			
+    		DXPlayerDBHelper helper = new DXPlayerDBHelper(this);
+    		SQLiteDatabase db = helper.getWritableDatabase();
+    		
     		m_item = DXPlayerDBHelper.getItem(db, extras.getInt("id"));
     		
     		tvTitle.setText(m_item.title);
@@ -41,8 +47,26 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		switch(v.getId()) {
 		case R.id.tvAttachment: {
+			File file = new File(m_item.attachments.get(0).file);
 			
+			if (file.exists()) {
+				Uri path = Uri.fromFile(file);
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setDataAndType(path, "application/pdf");
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				
+				try {
+					startActivity(intent);
+				} 
+				catch (ActivityNotFoundException e) {
+					Toast.makeText(AulaVideoPlayer.this, R.string.pdf_app_not_found, Toast.LENGTH_SHORT).show();
+				}
+			} else {
+				String msg = String.format(getResources().getString(R.string.pdf_not_found), m_item.attachments.get(0).file);
+				Toast.makeText(AulaVideoPlayer.this, msg, Toast.LENGTH_SHORT).show();
+			}
 		}
+		break;
 		}
 	}
 }
