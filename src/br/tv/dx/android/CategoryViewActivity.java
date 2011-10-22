@@ -8,30 +8,33 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class CategoryViewActivity extends Activity implements OnItemClickListener {
+public class CategoryViewActivity extends Activity implements
+		OnItemClickListener {
 
 	private CategoryViewAdapter m_adapter;
-	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-    	super.onCreate(savedInstanceState);
-    	setContentView(R.layout.categoryview);
-
-    	m_adapter = new CategoryViewAdapter(this);
-    	
-    	GridView v = (GridView)findViewById(R.id.gvCategories);
-    	v.setOnItemClickListener(this);
-    	v.setAdapter(m_adapter);
-    }
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if(parent.getId() == R.id.gvCategories) { // sanity check
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.categoryview);
+
+		m_adapter = new CategoryViewAdapter(this);
+
+		GridView v = (GridView) findViewById(R.id.gvCategories);
+		v.setOnItemClickListener(this);
+		v.setAdapter(m_adapter);
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		if (parent.getId() == R.id.gvCategories) { // sanity check
 			Intent intent = new Intent(this, AulasViewActivity.class);
-			
-			intent.putExtra("id", (int)id);
-			intent.putExtra("title", ((CategoryData)m_adapter.getItem(position)).title);
-			
+
+			intent.putExtra("id", (int) id);
+			intent.putExtra("title", ((CategoryData) m_adapter
+					.getItem(position)).title);
+
 			startActivity(intent);
 		}
 	}

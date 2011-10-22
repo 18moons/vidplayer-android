@@ -6,11 +6,11 @@ import java.util.List;
 public class ItemData {
 	static public class Attachment {
 		public String type;
-    	public String file;
-    }
-    
-    public int file;
-    
+		public String file;
+	}
+
+	public int file;
+
 	public int category;
 	public int id;
 	public String title;
@@ -19,7 +19,7 @@ public class ItemData {
 	public String link;
 	public List<Attachment> attachments;
 	public String video;
-	
+
 	ItemData() {
 		tags = new ArrayList<String>();
 		attachments = new ArrayList<Attachment>();
