@@ -62,8 +62,13 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
 		break;
 		
 		case R.id.tvLink: {
-			Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(m_item.link));
-			startActivity(myIntent);
+			try {
+				Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(m_item.link));
+				startActivity(myIntent);
+			} 
+			catch (ActivityNotFoundException e) {
+				Toast.makeText(AulaVideoPlayer.this, R.string.link_invalid, Toast.LENGTH_SHORT).show();
+			}
 		}
 		break;
 		
@@ -71,12 +76,11 @@ public class AulaVideoPlayer extends Activity implements OnClickListener {
 			File file = new File(m_item.attachments.get(0).file);
 			
 			if (file.exists()) {
-				Uri path = Uri.fromFile(file);
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setDataAndType(path, "application/pdf");
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				
 				try {
+					Uri path = Uri.fromFile(file);
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.setDataAndType(path, "application/pdf");
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 				} 
 				catch (ActivityNotFoundException e) {
