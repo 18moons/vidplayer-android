@@ -114,7 +114,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 	}
 	
 	static public Pair<Integer, Boolean> getFileID(SQLiteDatabase db, String fileName) {
-		Pair<Integer, Boolean> result = getUniqueID(db, fileName, "select id_file from xml_files where file_name = ?", "insert or replace into xml_files(file_name, checked) values (?, 1)");
+		Pair<Integer, Boolean> result = getUniqueID(db, fileName, "select id_file from xml_files where file_name = ?", "insert or replace into xml_files(file_name, checked) values (?, 0)");
 		
 		if (!result.second){
 			String args[] = { Integer.toString(result.first) };
@@ -131,6 +131,15 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 	static public void removeFile(SQLiteDatabase db, int fileId) {
 		String args[] = {Integer.toString(fileId)};
 		db.execSQL("delete from xml_files where id_file = ?", args);
+	}
+	
+	static public void setFileAsFinished(SQLiteDatabase db, int fileId) {
+		String args[] = {Integer.toString(fileId)};
+		db.execSQL("update xml_files set checked = 1 where id_file = ?", args);
+	}
+	
+	static public void removeIncompleteFiles(SQLiteDatabase db) {
+		db.execSQL("delete from xml_files where checked = 0");
 	}
 	
 	static public void cleanUpDb(SQLiteDatabase db) {

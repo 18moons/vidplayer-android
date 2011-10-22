@@ -9,4 +9,5 @@
 	<string name="pdf_app_not_found">Impossível abrir arquivos PDF.</string>
 	<string name="pdf_not_found">Arquivo "%s" não encontrado.</string>
 	<string name="pdf_btn_text">Fichas resumo\ndas aulas (PDF)</string>
+	<string name="xml_processing">Processando arquivo "%s".</string>
 </resources>

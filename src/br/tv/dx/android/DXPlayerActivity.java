@@ -32,7 +32,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
 import android.view.Window;
+import android.widget.TextView;
 
 public class DXPlayerActivity extends Activity {
     
@@ -85,6 +87,9 @@ public class DXPlayerActivity extends Activity {
 				Log.d(TAG, "downloading file: '" + outPath + "/" + file + "'");
 				FileOutputStream fos = new FileOutputStream(outPath + "/" + file);
                 
+				//Notify the user
+        		updateUI("Downloading: " + file);
+				
                 byte data[] = new byte[1024];
 				
                 int count;
@@ -129,6 +134,9 @@ public class DXPlayerActivity extends Activity {
         		path += "/Android/data/br.tv.dx.android/files";
         	}
         	
+        	//TODO Debug
+        	new File(path + "/midia/").mkdirs();
+        	
         	path += "/xml/";
         	
         	dir = new File(path);
@@ -151,25 +159,37 @@ public class DXPlayerActivity extends Activity {
         	public void run() {
         		long start = System.currentTimeMillis();
         		
+        		DXPlayerDBHelper helper = new DXPlayerDBHelper(DXPlayerActivity.this);
+                SQLiteDatabase db = helper.getWritableDatabase();
+        		
+                DXPlayerDBHelper.removeIncompleteFiles(db);
+                
         		File files[] = dir.listFiles(new XmlFileNameFilter());
                 
                 //TODO Debug
                 if (files.length == 0) {
-                	debugGetFiles(dir.getAbsolutePath());
+                	debugGetFiles(dir.getParent());
                 	files = dir.listFiles(new XmlFileNameFilter());
                 }
                 //end debug
                 
-                DXPlayerDBHelper helper = new DXPlayerDBHelper(DXPlayerActivity.this);
-                SQLiteDatabase db = helper.getWritableDatabase();
-                
                 DXPlayerDBHelper.resetFiles(db);
+                
+                final String xmlProcessing = getResources().getString(R.string.xml_processing);
         		
         		for(File f : files) {
                 	Pair<Integer, Boolean> fileId = DXPlayerDBHelper.getFileID(db, f.getName());
                 	try {
         	        	if (fileId.second){
+        	        		//Notify the user
+        	        		updateUI(String.format(xmlProcessing, f.getName()));
+        	        		
+        	        		//Process the XML data into the DB
         	        		readDataFile(f, fileId.first, db);
+        	        		
+        	        		//Mark the file as OK.  If exception is thrown, file is 
+        	        		//removed immediately or on next boot
+        	        		DXPlayerDBHelper.setFileAsFinished(db, fileId.first);
         	        	}
                 	} catch(Exception e) {
                 		DXPlayerDBHelper.removeFile(db, fileId.first);
@@ -183,7 +203,7 @@ public class DXPlayerActivity extends Activity {
                 // Make sure the splash screen is show for at least X seconds
                 try {
                 	long time = 2000 - (System.currentTimeMillis() - start);
-                	if ( time > 0 )
+                	if (time > 0)
                 		sleep(time);
 				} catch (InterruptedException e) {
 				}
@@ -192,6 +212,24 @@ public class DXPlayerActivity extends Activity {
         		finish();
         	}
         }.start();
+    }
+    
+    // If a file is being processed, notify the user
+    private void updateUI(final String msg) {
+    	runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				View pb = findViewById(R.id.ProgressBar);
+				if (pb.getVisibility() != View.VISIBLE)
+					pb.setVisibility(View.VISIBLE);
+				
+				TextView tv = (TextView)findViewById(R.id.TextView);
+				if (tv.getVisibility() != View.VISIBLE)
+					tv.setVisibility(View.VISIBLE);
+				
+				tv.setText(msg);
+			}
+		});
     }
     
     private enum XMLElements {
