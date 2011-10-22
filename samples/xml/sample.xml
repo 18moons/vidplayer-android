@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dxtv>
+  <category>
+  
+    <title>Biologia</title>
+	<items>
+		<item>
+			<title>Vírus</title>
+			<subTitle>Parasitas celulares</subTitle>
+			<tags>
+				<tag>Vírus</tag>
+				<tag>Parasitas</tag>
+				<tag>Celulares</tag>
+				<tag>Teníase</tag>
+				<tag>Esquistossomose</tag>
+			</tags>
+			<link>em definicao</link>
+			<attachment type="pdf">../midia/ENEM_BIOLOGIA_VIRUS-PARASITAS_CELULARES.pdf</attachment>
+			<video>../midia/ENEM_BIOLOGIA_VIRUS-PARASITAS_CELULARES.mp4</video>
+		</item>
+	</items>
+	  
+  </category>
+
+</dxtv>
