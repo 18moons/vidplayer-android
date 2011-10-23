@@ -21,21 +21,21 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_CREATE_XML_FILES = "create table xml_files ("
 			+ "	id_file integer primary key,"
 			+ "	file_name text,"
-			+ "	checked int " + ");";
+			+ "	checked int);";
 
 	private static final String DATABASE_CREATE_CATEGORIES = "create table categories ("
-			+ "	id_category integer primary key," + "	category text" + ");";
+			+ "	id_category integer primary key, category text);";
 
 	private static final String DATABASE_CREATE_ITEMS = "create table items ("
-			+ "	id_item integer primary key,"
-			+ "   id_file integer,"
-			+ "	id_category integer,"
-			+ "	title text,"
-			+ "	sub_title text,"
-			+ "	link text,"
-			+ "	video text,"
-			+ "	constraint fk_items_files foreign key (id_file) references xml_files (id_file) on delete cascade on update cascade,"
-			+ "	constraint fk_items_categories foreign key (id_category) references categories (id_category) on delete cascade on update cascade"
+			+ " id_item integer primary key,"
+			+ " id_file integer,"
+			+ " id_category integer,"
+			+ " title text,"
+			+ " sub_title text,"
+			+ " link text,"
+			+ " video text,"
+			+ " constraint fk_items_files foreign key (id_file) references xml_files (id_file) on delete cascade on update cascade,"
+			+ " constraint fk_items_categories foreign key (id_category) references categories (id_category) on delete cascade on update cascade"
 			+ ");";
 
 	private static final String DATABASE_CREATE_ATTACHMENTS = "create table attachments ("
@@ -47,7 +47,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			+ ");";
 
 	private static final String DATABASE_CREATE_TAGS = "create table tags ("
-			+ "	id_tag integer primary key," + "	tag text" + ");";
+			+ "	id_tag integer primary key, tag text);";
 
 	private static final String DATABASE_CREATE_ITEMS_TAGS = "create table items_tags ("
 			+ "	id_tag integer,"
@@ -138,8 +138,16 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 
 	static public void cleanUpDb(SQLiteDatabase db) {
 		db.execSQL("delete from xml_files where checked = 0");
-		// TODO clear tags
-		// TODO clear categories
+		// TODO Check clear tags
+		db.execSQL("delete from tags where"
+				+ " (select items_tags.id_tag from items_tags where"
+				+ " items_tags.id_tag = tags.id_tag limit 1) is null;");
+
+		// TODO Check clear categories
+		db
+				.execSQL("delete from categories where"
+						+ " (select items.id_category from items where"
+						+ " items.id_category = categories.id_category limit 1) is null;");
 	}
 
 	static public int getCategoryID(SQLiteDatabase db, String categoryName) {
