@@ -161,12 +161,6 @@ public class DXPlayerActivity extends Activity {
 			public void run() {
 				long start = System.currentTimeMillis();
 
-				DXPlayerDBHelper helper = new DXPlayerDBHelper(
-						DXPlayerActivity.this);
-				SQLiteDatabase db = helper.getWritableDatabase();
-
-				DXPlayerDBHelper.removeIncompleteFiles(db);
-
 				File files[] = dir.listFiles(new XmlFileNameFilter());
 
 				// TODO Debug
@@ -176,6 +170,11 @@ public class DXPlayerActivity extends Activity {
 				}
 				// end debug
 
+				DXPlayerDBHelper helper = new DXPlayerDBHelper(
+						DXPlayerActivity.this);
+				SQLiteDatabase db = helper.getWritableDatabase();
+
+				DXPlayerDBHelper.removeIncompleteFiles(db);
 				DXPlayerDBHelper.resetFiles(db);
 
 				final String xmlProcessing = getResources().getString(

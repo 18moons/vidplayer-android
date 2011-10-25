@@ -6,7 +6,9 @@ import java.util.List;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 import android.util.Pair;
 import br.tv.dx.android.ItemData.Attachment;
@@ -228,41 +230,63 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
-	static public void setItem(SQLiteDatabase db, ItemData data) {
-		String itemArgs[] = { Integer.toString(data.file),
-				Integer.toString(data.category), data.title, data.subTitle,
-				data.link, data.video };
-		db
-				.execSQL(
-						"insert into items (id_file, id_category, title, sub_title, link, video) values (?, ?, ?, ?, ?, ?)",
-						itemArgs);
+	static private SQLiteStatement m_stmtInsertItem = null;
 
-		String nullArgs[] = {};
-		Cursor stmt = db.rawQuery("select last_insert_rowid();", nullArgs);
-		stmt.moveToNext();
-		int itemId = stmt.getInt(0);
-		stmt.close();
-		stmt = null;
+	static private SQLiteStatement m_stmtSelectTag = null;
+	static private SQLiteStatement m_stmtInsertTag = null;
+
+	static private SQLiteStatement m_stmtInsertItemTags = null;
+
+	static private SQLiteStatement m_stmtInsertAttachment = null;
+
+	static public void setItem(SQLiteDatabase db, ItemData data) {
+		if (m_stmtInsertItem == null) {
+			m_stmtInsertItem = db
+					.compileStatement("insert into items (id_file, id_category, title, sub_title, link, video) values (?, ?, ?, ?, ?, ?)");
+
+			m_stmtSelectTag = db
+					.compileStatement("select id_tag from tags where tag = ?");
+			m_stmtInsertTag = db
+					.compileStatement("insert or replace into tags(tag) values (?)");
+
+			m_stmtInsertItemTags = db
+					.compileStatement("insert into items_tags (id_tag, id_item) values (?, ?)");
+
+			m_stmtInsertAttachment = db
+					.compileStatement("insert into attachments (id_item, file_name, type) values (?, ?, ?)");
+		}
+
+		m_stmtInsertItem.bindLong(1, data.file);
+		m_stmtInsertItem.bindLong(2, data.category);
+		m_stmtInsertItem.bindString(3, data.title);
+		m_stmtInsertItem.bindString(4, data.subTitle);
+		m_stmtInsertItem.bindString(5, data.link);
+		m_stmtInsertItem.bindString(6, data.video);
+
+		long itemId = m_stmtInsertItem.executeInsert();
 
 		for (String tag : data.tags) {
-			int tagId = getUniqueID(db, tag,
-					"select id_tag from tags where tag = ?",
-					"insert or replace into tags(tag) values (?)").first;
 
-			String itemTagsArgs[] = { Integer.toString(tagId),
-					Integer.toString(itemId) };
-			db.execSQL(
-					"insert into items_tags (id_tag, id_item) values (?, ?)",
-					itemTagsArgs);
+			long tagId;
+
+			m_stmtSelectTag.bindString(1, tag);
+			try {
+				tagId = m_stmtSelectTag.simpleQueryForLong();
+			} catch (SQLiteDoneException e) {
+				m_stmtInsertTag.bindString(1, tag);
+				tagId = m_stmtInsertTag.executeInsert();
+			}
+
+			m_stmtInsertItemTags.bindLong(1, tagId);
+			m_stmtInsertItemTags.bindLong(2, itemId);
+			m_stmtInsertItemTags.execute();
 		}
 
 		for (Attachment attach : data.attachments) {
-			String attachArgs[] = { Integer.toString(itemId), attach.file,
-					attach.type };
-			db
-					.execSQL(
-							"insert into attachments (id_item, file_name, type) values (?, ?, ?)",
-							attachArgs);
+			m_stmtInsertAttachment.bindLong(1, itemId);
+			m_stmtInsertAttachment.bindString(2, attach.file);
+			m_stmtInsertAttachment.bindString(3, attach.type);
+			m_stmtInsertAttachment.execute();
 		}
 	}
 
