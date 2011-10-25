@@ -91,7 +91,12 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 			m_tvSubtitle.setText(m_item.subTitle);
 			m_tvLink.setText(m_item.link);
 
-			if (!new File(m_item.video).exists()) {
+			try {
+				if (!new File(m_item.video).exists()) {
+					showDialog(DIALOG_VIDEO_NOT_FOUND);
+					return;
+				}
+			} catch (NullPointerException e) {
 				showDialog(DIALOG_VIDEO_NOT_FOUND);
 				return;
 			}
