@@ -118,6 +118,43 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
+	// static private String fmtCol(String str) {
+	// final int size = 20;
+	// 
+	// if (str.length() > size) {
+	// return str.substring(0, size);
+	// } else {
+	// return str
+	// + new String("                    ").substring(0, size
+	// - str.length());
+	// }
+	// }
+
+	// static private void dumpTable(SQLiteDatabase db, String tableName) {
+	// String sql = "select * from \"" + tableName + "\"";
+	// Cursor cur = db.rawQuery(sql, new String[0]);
+	// int cols = cur.getColumnCount();
+	//
+	// String str = "";
+	//
+	// for (int i = 0; i != cols; i++) {
+	// str += fmtCol(cur.getColumnName(i));
+	// }
+	// Log.d(DXPlayerActivity.TAG, "DUMP: " + tableName + ": " + str);
+	//
+	// while (cur.moveToNext()) {
+	// str = "";
+	//
+	// for (int i = 0; i != cols; i++) {
+	// str += fmtCol(cur.getString(i));
+	// }
+	//
+	// Log.d(DXPlayerActivity.TAG, "DUMP: " + tableName + ": " + str);
+	// }
+	//
+	// cur.close();
+	// }
+
 	static public void resetFiles(SQLiteDatabase db) {
 		db.execSQL("update xml_files set checked = 0");
 	}
@@ -138,12 +175,27 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 
 	static public void cleanUpDb(SQLiteDatabase db) {
 		db.execSQL("delete from xml_files where checked = 0");
-		// TODO Check clear tags
+
+		// Clear items
+		db.execSQL("delete from items where"
+				+ " (select xml_files.id_file from xml_files where"
+				+ " xml_files.id_file = items.id_file limit 1) is null;");
+
+		// Clear attachments
+		db.execSQL("delete from attachments where"
+				+ " (select items.id_item from items where"
+				+ " items.id_item = attachments.id_item limit 1) is null;");
+
+		// Clear tags
+		db.execSQL("delete from items_tags where"
+				+ " (select items.id_item from items where"
+				+ " items.id_item = items_tags.id_item limit 1) is null;");
+
 		db.execSQL("delete from tags where"
 				+ " (select items_tags.id_tag from items_tags where"
 				+ " items_tags.id_tag = tags.id_tag limit 1) is null;");
 
-		// TODO Check clear categories
+		// Clear categories
 		db
 				.execSQL("delete from categories where"
 						+ " (select items.id_category from items where"
