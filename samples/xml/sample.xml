@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dxtv>
   <category>
-  
     <title>Biologia</title>
 	<items>
 		<item>
-			<title>Vírus</title>
-			<subTitle>Parasitas celulares</subTitle>
+			<title>Célula, procarionte, eucarionte e organóides</title>
+			<subTitle>Características das células</subTitle>
+			<teacher>Prof. Cláudio P. Alves</teacher>
+			<year>2009</year>
+			<sinopse>Enfatizando as principais competências e habilidades exigidas no novo ENEM, esta série apresenta uma moderna e inteligente produção baseada na matriz Ciências da natureza e suas tecnologias. </sinopse>
 			<tags>
 				<tag>Vírus</tag>
 				<tag>Parasitas</tag>
@@ -19,7 +21,5 @@
 			<video>../midia/ENEM_BIOLOGIA_VIRUS-PARASITAS_CELULARES.mp4</video>
 		</item>
 	</items>
-	  
   </category>
-
 </dxtv>
