@@ -230,6 +230,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
+	// For performance issues, these statements get cached.
 	static private SQLiteStatement m_stmtInsertItem = null;
 
 	static private SQLiteStatement m_stmtSelectTag = null;
