@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <dxtv>
-  <category>
-    <title>Biologia</title>
-	<items>
-		<item>
-			<title>Célula, procarionte, eucarionte e organóides</title>
-			<subTitle>Características das células</subTitle>
-			<teacher>Prof. Cláudio P. Alves</teacher>
-			<year>2009</year>
-			<sinopse>Enfatizando as principais competências e habilidades exigidas no novo ENEM, esta série apresenta uma moderna e inteligente produção baseada na matriz Ciências da natureza e suas tecnologias. </sinopse>
-			<tags>
-				<tag>Vírus</tag>
-				<tag>Parasitas</tag>
-				<tag>Celulares</tag>
-				<tag>Teníase</tag>
-				<tag>Esquistossomose</tag>
-			</tags>
-			<link>em definicao</link>
-			<attachment type="pdf">../midia/ENEM_BIOLOGIA_VIRUS-PARASITAS_CELULARES.pdf</attachment>
-			<video>../midia/ENEM_BIOLOGIA_VIRUS-PARASITAS_CELULARES.mp4</video>
-		</item>
-	</items>
-  </category>
+	<category>
+		<title>Biologia</title>
+		<image>../midia/biologia.png</image>
+		<items>
+			<item>
+				<title>Célula, procarionte, eucarionte e organóides</title>
+				<subTitle>Características das células</subTitle>
+				<image>../midia/bio_aula_001.png</image>
+				<teacher>Prof. Cláudio P. Alves</teacher>
+				<year>2009</year>
+				<sinopse>Enfatizando as principais competências e habilidades exigidas no novo ENEM, esta série apresenta uma moderna e inteligente produção baseada na matriz Ciências da natureza e suas tecnologias. </sinopse>
+				<tags>
+					<tag>Vírus</tag>
+					<tag>Parasitas</tag>
+					<tag>Celulares</tag>
+					<tag>Teníase</tag>
+					<tag>Esquistossomose</tag>
+				</tags>
+				<link>em definicao</link>
+				<attachment type="pdf">../midia/ENEM_BIOLOGIA_VIRUS-PARASITAS_CELULARES.pdf</attachment>
+				<video>../midia/ENEM_BIOLOGIA_VIRUS-PARASITAS_CELULARES.mp4</video>
+			</item>
+		</items>
+	</category>
 </dxtv>
