@@ -15,6 +15,7 @@ public class ItemData {
 	public int id;
 	public String title;
 	public String subTitle;
+	public String image;
 	public List<String> tags;
 	public String link;
 	public List<Attachment> attachments;

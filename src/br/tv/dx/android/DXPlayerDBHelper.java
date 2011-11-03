@@ -26,7 +26,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			+ "	checked int);";
 
 	private static final String DATABASE_CREATE_CATEGORIES = "create table categories ("
-			+ "	id_category integer primary key, category text);";
+			+ "	id_category integer primary key, category text, image text, background text);";
 
 	private static final String DATABASE_CREATE_ITEMS = "create table items ("
 			+ " id_item integer primary key,"
@@ -204,10 +204,45 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 						+ " items.id_category = categories.id_category limit 1) is null;");
 	}
 
-	static public int getCategoryID(SQLiteDatabase db, String categoryName) {
-		return getUniqueID(db, categoryName,
-				"select id_category from categories where category = ?",
-				"insert or replace into categories(category) values (?)").first;
+	static public CategoryData getCategoryID(SQLiteDatabase db,
+			String categoryName) {
+
+		CategoryData result = new CategoryData();
+
+		String args[] = { categoryName };
+		Cursor stmt = db
+				.rawQuery(
+						"select id_category, image, background from categories where category = ?",
+						args);
+
+		if (stmt.moveToNext()) {
+			result.id = stmt.getInt(0);
+			result.imgButton = stmt.getString(1);
+			result.imgBackground = stmt.getString(2);
+		} else {
+			stmt.close();
+			db.execSQL(
+					"insert or replace into categories(category) values (?)",
+					args);
+
+			String nullArgs[] = {};
+			stmt = db.rawQuery("select last_insert_rowid();", nullArgs);
+
+			stmt.moveToNext();
+			result.id = stmt.getInt(0);
+		}
+
+		stmt.close();
+
+		return result;
+	}
+
+	static public void setCategoryID(SQLiteDatabase db, CategoryData category) {
+		String args[] = { category.imgButton, category.imgBackground,
+				Integer.toString(category.id) };
+
+		db.execSQL("update categories set image = ?,"
+				+ " background = ? where id_category = ?", args);
 	}
 
 	static public List<CategoryData> getCategories(SQLiteDatabase db) {

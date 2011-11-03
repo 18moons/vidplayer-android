@@ -3,24 +3,22 @@ package br.tv.dx.android;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.http.util.ByteArrayBuffer;
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -81,7 +79,13 @@ public class DXPlayerActivity extends Activity {
 
 				con = url.openConnection();
 
-				is = con.getInputStream();
+				try {
+					is = con.getInputStream();
+				} catch (FileNotFoundException e) {
+					Log.e(TAG, "File not found: '" + urlBase + file + "'", e);
+					continue;
+				}
+
 				bis = new BufferedInputStream(is);
 
 				Log.d(TAG, "downloading file: '" + outPath + "/" + file + "'");
@@ -241,173 +245,6 @@ public class DXPlayerActivity extends Activity {
 		});
 	}
 
-	private enum XMLElements {
-		NULL, dxtv, category, title, items, item, subTitle, tags, tag, link, attachment, video;
-
-		XMLElements() {
-		}
-
-		public static XMLElements value(String str) {
-			str = str.toLowerCase();
-
-			switch (str.charAt(0)) {
-			case 'a':
-				if (str.equals("attachment")) {
-					return XMLElements.attachment;
-				}
-				break;
-			case 'c':
-				if (str.equals("category")) {
-					return XMLElements.category;
-				}
-				break;
-			case 'd':
-				if (str.equals("dxtv")) {
-					return XMLElements.dxtv;
-				}
-				break;
-			case 'i':
-				if (str.equals("id")) {
-					return XMLElements.title;
-				} else if (str.equals("item")) {
-					return XMLElements.item;
-				} else if (str.equals("items")) {
-					return XMLElements.items;
-				}
-				break;
-			case 'l':
-				if (str.equals("link")) {
-					return XMLElements.link;
-				}
-				break;
-			case 's':
-				if (str.equals("subtitle")) {
-					return XMLElements.subTitle;
-				}
-				break;
-			case 't':
-				if (str.equals("tag")) {
-					return XMLElements.tag;
-				} else if (str.equals("tags")) {
-					return XMLElements.tags;
-				} else if (str.equals("title")) {
-					return XMLElements.title;
-				}
-				break;
-			case 'v':
-				if (str.equals("video")) {
-					return XMLElements.video;
-				}
-				break;
-			}
-			return NULL;
-		}
-	}
-
-	private class XMLFileHandler extends DefaultHandler {
-
-		private SQLiteDatabase m_db;
-		private String m_filePath;
-
-		private Stack<XMLElements> m_elements = new Stack<XMLElements>();
-
-		private int m_fileId;
-		private int m_category = 0;
-		private ItemData.Attachment m_attachment;
-		private ItemData m_item;
-
-		XMLFileHandler(int fileId, String filePath, SQLiteDatabase db) {
-			m_fileId = fileId;
-			m_filePath = filePath;
-			m_db = db;
-		}
-
-		@Override
-		public void startElement(String namespaceURI, String localName,
-				String qName, Attributes atts) throws SAXException {
-			XMLElements elem = XMLElements.value(localName);
-			m_elements.push(elem);
-
-			switch (elem) {
-			case attachment:
-				m_attachment = new ItemData.Attachment();
-				m_attachment.type = atts.getValue("type");
-				break;
-			case item:
-				m_item = new ItemData();
-				m_item.category = m_category;
-				m_item.file = m_fileId;
-				break;
-			}
-		}
-
-		@Override
-		public void endElement(String namespaceURI, String localName,
-				String qName) throws SAXException {
-			if (m_elements.lastElement() == XMLElements.item) {
-				DXPlayerDBHelper.setItem(m_db, m_item);
-				m_item = null;
-			}
-			m_elements.pop();
-		}
-
-		@Override
-		public void characters(char ch[], int start, int length) {
-			String chars = new String(ch, start, length);
-			chars = chars.trim();
-
-			switch (m_elements.lastElement()) {
-
-			case title:
-				XMLElements prev = m_elements.get(m_elements.size() - 2);
-				switch (prev) {
-				case category:
-					m_category = DXPlayerDBHelper.getCategoryID(m_db, chars);
-					break;
-				case item:
-					m_item.title = chars;
-					break;
-				}
-				break;
-
-			case subTitle:
-				m_item.subTitle = chars;
-				break;
-
-			case tag:
-				m_item.tags.add(chars);
-				break;
-
-			case link:
-				m_item.link = chars;
-				break;
-
-			case attachment:
-				try {
-					m_attachment.file = new File(m_filePath + "/" + chars)
-							.getCanonicalPath();
-					m_item.attachments.add(m_attachment);
-				} catch (IOException e) {
-					Log.e(TAG, "Attachment file not found: '" + m_filePath
-							+ "/" + chars + "'");
-				}
-
-				m_attachment = null;
-				break;
-
-			case video:
-				try {
-					m_item.video = new File(m_filePath + "/" + chars)
-							.getCanonicalPath();
-				} catch (IOException e) {
-					Log.e(TAG, "Video file not found: '" + m_filePath + "/"
-							+ chars + "'");
-				}
-				break;
-			}
-		}
-	}
-
 	protected void readDataFile(File file, int fileId, SQLiteDatabase db) {
 		// sax stuff
 		try {
@@ -416,8 +253,8 @@ public class DXPlayerActivity extends Activity {
 
 			XMLReader reader = sp.getXMLReader();
 
-			reader.setContentHandler(new XMLFileHandler(fileId, file
-					.getParent(), db));
+			reader.setContentHandler(new XMLFileParser(fileId,
+					file.getParent(), db));
 
 			reader.parse(new InputSource(new FileInputStream(file)));
 
