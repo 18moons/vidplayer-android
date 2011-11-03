@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" 
-	android:id="@+id/gvCategories"
-	android:numColumns="4"
-	android:verticalSpacing="10dp"
-	android:horizontalSpacing="10dp">
-</GridView>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+    
+    <ImageView 
+        android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+        android:background="@drawable/background_materias"/>
+    
+	<GridView
+	    android:id="@+id/gvCategories" 
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content" 
+		android:layout_centerInParent="true"
+		android:numColumns="4"
+		android:verticalSpacing="10dp"
+		android:horizontalSpacing="10dp">
+	</GridView>
+	
+</RelativeLayout>
