@@ -5,4 +5,5 @@ public class CategoryData {
 	public String title;
 	public String imgButton;
 	public String imgBackground;
+	public int count;
 }

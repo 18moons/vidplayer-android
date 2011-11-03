@@ -204,7 +204,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 						+ " items.id_category = categories.id_category limit 1) is null;");
 	}
 
-	static public CategoryData getCategoryID(SQLiteDatabase db,
+	static public CategoryData getCategory(SQLiteDatabase db,
 			String categoryName) {
 
 		CategoryData result = new CategoryData();
@@ -237,6 +237,29 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
+	static public CategoryData getCategory(SQLiteDatabase db, int categoryId) {
+
+		CategoryData result = null;
+
+		String args[] = { Integer.toString(categoryId) };
+		Cursor stmt = db
+				.rawQuery(
+						"select category, image, background from categories where id_category = ?",
+						args);
+
+		if (stmt.moveToNext()) {
+			result = new CategoryData();
+			result.id = categoryId;
+			result.title = stmt.getString(0);
+			result.imgButton = stmt.getString(1);
+			result.imgBackground = stmt.getString(2);
+		}
+
+		stmt.close();
+
+		return result;
+	}
+
 	static public void setCategoryID(SQLiteDatabase db, CategoryData category) {
 		String args[] = { category.imgButton, category.imgBackground,
 				Integer.toString(category.id) };
@@ -251,13 +274,18 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		String nullArgs[] = {};
 		Cursor stmt = db
 				.rawQuery(
-						"select id_category, category from categories order by category",
+						"select id_category, category, image, background,"
+								+ " (select count(*) from items where items.id_category = categories.id_category)"
+								+ " from categories order by category",
 						nullArgs);
 
 		while (stmt.moveToNext()) {
 			CategoryData data = new CategoryData();
 			data.id = stmt.getInt(0);
 			data.title = stmt.getString(1);
+			data.imgButton = stmt.getString(2);
+			data.imgBackground = stmt.getString(3);
+			data.count = stmt.getInt(4);
 			result.add(data);
 		}
 

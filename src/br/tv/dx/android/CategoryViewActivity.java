@@ -32,8 +32,6 @@ public class CategoryViewActivity extends Activity implements
 			Intent intent = new Intent(this, AulasViewActivity.class);
 
 			intent.putExtra("id", (int) id);
-			intent.putExtra("title", ((CategoryData) m_adapter
-					.getItem(position)).title);
 
 			startActivity(intent);
 		}

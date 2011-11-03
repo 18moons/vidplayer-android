@@ -2,12 +2,25 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    
+    <ImageView
+        android:id="@+id/ivBackground" 
+        android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+        android:background="@drawable/background_materias"/>
+        
     <TextView
         android:id="@+id/tvCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:text="CATEGORY"/>
+        android:paddingTop="10dip"
+        android:paddingLeft="10dip"
+        android:paddingBottom="5dip"
+        android:text="CATEGORY"
+        android:textSize="40dip"
+        android:textColor="@android:color/white"/>
+    
     <GridView
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"

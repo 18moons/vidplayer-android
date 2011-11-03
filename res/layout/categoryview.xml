@@ -7,7 +7,7 @@
         android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
         android:background="@drawable/background_materias"/>
-    
+
 	<GridView
 	    android:id="@+id/gvCategories" 
 	    android:layout_width="wrap_content"
@@ -15,7 +15,7 @@
 		android:layout_centerInParent="true"
 		android:numColumns="4"
 		android:verticalSpacing="10dp"
-		android:horizontalSpacing="10dp">
-	</GridView>
-	
+		android:horizontalSpacing="10dp"
+		android:stretchMode="columnWidth"
+		android:gravity="center"/>
 </RelativeLayout>

@@ -94,7 +94,7 @@ public class XMLFileParser extends DefaultHandler {
 					m_category.imgButton = fileName;
 					break;
 				case item:
-					m_item.title = fileName;
+					m_item.image = fileName;
 					break;
 				}
 			} catch (IOException e) {
@@ -108,7 +108,7 @@ public class XMLFileParser extends DefaultHandler {
 			XMLElements prev = m_elements.get(m_elements.size() - 2);
 			switch (prev) {
 			case category:
-				m_category = DXPlayerDBHelper.getCategoryID(m_db, chars);
+				m_category = DXPlayerDBHelper.getCategory(m_db, chars);
 				break;
 			case item:
 				m_item.title = chars;
