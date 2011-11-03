@@ -15,19 +15,22 @@
 	    android:layout_height="wrap_content"
 	    android:layout_centerInParent="true"
 	    android:src="@drawable/splash_screen" />
-		
-	<ProgressBar 
-	    android:id="@+id/ProgressBar"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_centerInParent="true"
-	    android:visibility="invisible"/>
 	
 	<TextView
 	    android:id="@+id/TextView"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_centerHorizontal="true"
-	    android:layout_below="@id/ProgressBar"
+	    android:layout_alignParentBottom="true"
+	    android:layout_marginBottom="5dip"
 	    android:visibility="invisible"/>
+		
+	<ProgressBar 
+	    android:id="@+id/ProgressBar"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@id/TextView"
+	    android:layout_centerHorizontal="true"
+	    android:visibility="invisible"/>
+	
 </RelativeLayout>
