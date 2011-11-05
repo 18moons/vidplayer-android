@@ -46,7 +46,7 @@ public class CategoryViewAdapter extends BaseAdapter {
 
 		Display display = activity.getWindowManager().getDefaultDisplay();
 		int width = display.getWidth();
-		m_size = (width / 4) - (int) (0.3 * metrics.ydpi);
+		m_size = (width / 4) - (int) (0.2 * metrics.ydpi);
 	}
 
 	@Override
@@ -117,8 +117,7 @@ public class CategoryViewAdapter extends BaseAdapter {
 
 			backgroundIsSet = setBackground(ivBkg, category);
 
-			params = new RelativeLayout.LayoutParams(
-					RelativeLayout.LayoutParams.FILL_PARENT, m_size);
+			params = new RelativeLayout.LayoutParams(m_size, m_size);
 
 			params.addRule(RelativeLayout.CENTER_IN_PARENT);
 

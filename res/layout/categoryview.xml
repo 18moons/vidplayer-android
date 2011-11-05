@@ -11,11 +11,13 @@
 	<GridView
 	    android:id="@+id/gvCategories" 
 	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content" 
+	    android:layout_height="wrap_content"
+	    android:layout_marginLeft="15dip"
+	    android:layout_marginRight="15dip" 
 		android:layout_centerInParent="true"
 		android:numColumns="4"
-		android:verticalSpacing="10dp"
-		android:horizontalSpacing="10dp"
+		android:verticalSpacing="15dp"
+		android:horizontalSpacing="15dp"
 		android:stretchMode="columnWidth"
 		android:gravity="center"/>
 </RelativeLayout>
