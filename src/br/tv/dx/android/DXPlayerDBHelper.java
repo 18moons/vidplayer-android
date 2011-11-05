@@ -34,6 +34,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			+ " id_category integer,"
 			+ " title text,"
 			+ " sub_title text,"
+			+ " image text,"
 			+ " link text,"
 			+ " video text,"
 			+ " constraint fk_items_files foreign key (id_file) references xml_files (id_file) on delete cascade on update cascade,"
@@ -306,7 +307,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 	static public void setItem(SQLiteDatabase db, ItemData data) {
 		if (m_stmtInsertItem == null) {
 			m_stmtInsertItem = db
-					.compileStatement("insert into items (id_file, id_category, title, sub_title, link, video) values (?, ?, ?, ?, ?, ?)");
+					.compileStatement("insert into items (id_file, id_category, title, sub_title, image, link, video) values (?, ?, ?, ?, ?, ?, ?)");
 
 			m_stmtSelectTag = db
 					.compileStatement("select id_tag from tags where tag = ?");
@@ -322,10 +323,31 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 
 		m_stmtInsertItem.bindLong(1, data.file);
 		m_stmtInsertItem.bindLong(2, data.category);
-		m_stmtInsertItem.bindString(3, data.title);
-		m_stmtInsertItem.bindString(4, data.subTitle);
-		m_stmtInsertItem.bindString(5, data.link);
-		m_stmtInsertItem.bindString(6, data.video);
+
+		if (data.title != null)
+			m_stmtInsertItem.bindString(3, data.title);
+		else
+			m_stmtInsertItem.bindNull(3);
+
+		if (data.subTitle != null)
+			m_stmtInsertItem.bindString(4, data.subTitle);
+		else
+			m_stmtInsertItem.bindNull(4);
+
+		if (data.image != null)
+			m_stmtInsertItem.bindString(5, data.image);
+		else
+			m_stmtInsertItem.bindNull(5);
+
+		if (data.link != null)
+			m_stmtInsertItem.bindString(6, data.link);
+		else
+			m_stmtInsertItem.bindNull(6);
+
+		if (data.video != null)
+			m_stmtInsertItem.bindString(7, data.video);
+		else
+			m_stmtInsertItem.bindNull(7);
 
 		long itemId = m_stmtInsertItem.executeInsert();
 
@@ -360,6 +382,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		Cursor stmtAttach = db.rawQuery(
 				"select file_name, type from attachments where id_item = ?",
 				itemId);
+
 		while (stmtAttach.moveToNext()) {
 			Attachment attach = new Attachment();
 			attach.file = stmtAttach.getString(0);
@@ -392,7 +415,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		String args[] = { Integer.toString(categoryId) };
 		Cursor stmt = db
 				.rawQuery(
-						"select id_item, id_file, title, sub_title, link, video from items where id_category = ? order by id_item",
+						"select id_item, id_file, title, sub_title, image, link, video from items where id_category = ? order by id_item",
 						args);
 
 		while (stmt.moveToNext()) {
@@ -402,8 +425,9 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			data.category = categoryId;
 			data.title = stmt.getString(2);
 			data.subTitle = stmt.getString(3);
-			data.link = stmt.getString(4);
-			data.video = stmt.getString(5);
+			data.image = stmt.getString(4);
+			data.link = stmt.getString(5);
+			data.video = stmt.getString(6);
 
 			// For now, this data is not used anywhere so don't bother loading
 			// addItemData(db, data);
@@ -421,7 +445,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		String args[] = { Integer.toString(itemId) };
 		Cursor stmt = db
 				.rawQuery(
-						"select id_item, id_file, id_category, title, sub_title, link, video from items where id_item = ?",
+						"select id_item, id_file, id_category, title, sub_title, image, link, video from items where id_item = ?",
 						args);
 
 		if (stmt.moveToNext()) {
@@ -430,8 +454,9 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			result.category = stmt.getInt(2);
 			result.title = stmt.getString(3);
 			result.subTitle = stmt.getString(4);
-			result.link = stmt.getString(5);
-			result.video = stmt.getString(6);
+			result.image = stmt.getString(5);
+			result.link = stmt.getString(6);
+			result.video = stmt.getString(7);
 
 			addItemData(db, result);
 		}
