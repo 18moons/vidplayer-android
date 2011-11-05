@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
     
     <ImageView
-        android:id="@+id/ivBackground" 
+        android:id="@+id/ivBackground"
         android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
         android:background="@drawable/background_materias"/>

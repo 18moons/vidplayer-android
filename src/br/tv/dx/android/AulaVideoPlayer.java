@@ -48,6 +48,7 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 	private GridView m_gvTags;
 
 	private VideoView m_vvVideo;
+	private MediaController m_contoller;
 
 	private int m_msgIndex = 0;
 
@@ -110,8 +111,9 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 				// MediaController is the ui control howering above the video
 				// (just
 				// like in the default youtube player).
-				m_vvVideo.setMediaController(new MediaController(this));
-				// assing a video file to the video holder
+				m_contoller = new MediaController(this);
+				m_vvVideo.setMediaController(m_contoller);
+				// passing a video file to the video holder
 				m_vvVideo.setVideoURI(Uri.parse(m_item.video));
 				// get focus, before playing the video.
 				m_vvVideo.requestFocus();
@@ -125,6 +127,8 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 				showDialog(DIALOG_VIDEO_PREPARE_ERROR);
 				return;
 			}
+
+			findViewById(R.id.rlLayout).setOnClickListener(this);
 
 			m_tvLink.setOnClickListener(this);
 			m_tvAttachment.setOnClickListener(this);
@@ -185,6 +189,8 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 			break;
 		}
 
+		case R.id.rlLayout:
+			m_contoller.show();
 		case R.id.vvVideo: {
 			m_layDetails.setVisibility(View.VISIBLE);
 			m_tvBack.setVisibility(View.VISIBLE);
