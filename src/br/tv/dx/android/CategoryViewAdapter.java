@@ -41,12 +41,12 @@ public class CategoryViewAdapter extends BaseAdapter {
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-		m_padding = (int) (0.05 * metrics.ydpi);
-		m_textSize = (int) (0.14 * metrics.ydpi);
+		m_padding = (int) (5 * metrics.density);
+		m_textSize = (int) (15 * metrics.density);
 
 		Display display = activity.getWindowManager().getDefaultDisplay();
 		int width = display.getWidth();
-		m_size = (width / 4) - (int) (0.2 * metrics.ydpi);
+		m_size = (width / 4) - (int) (20 * metrics.density);
 	}
 
 	@Override
