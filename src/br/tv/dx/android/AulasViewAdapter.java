@@ -10,18 +10,20 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
 
 public class AulasViewAdapter extends BaseAdapter {
 
 	private Activity m_activity;
 	private List<ItemData> m_items;
+
+	private int m_size;
 
 	AulasViewAdapter(Activity activity, int categoryId) {
 		m_activity = activity;
@@ -34,6 +36,11 @@ public class AulasViewAdapter extends BaseAdapter {
 
 		DisplayMetrics metrics = new DisplayMetrics();
 		activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+		Display display = activity.getWindowManager().getDefaultDisplay();
+		int width = display.getWidth();
+
+		m_size = (width / 4) - (int) (20 * metrics.density);
 	}
 
 	@Override
@@ -74,8 +81,7 @@ public class AulasViewAdapter extends BaseAdapter {
 		if (convertView == null) { // if it's not recycled, initialise some
 			// attributes
 			textView = new TextView(m_activity);
-			textView.setLayoutParams(new GridView.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+			textView.setLayoutParams(new GridView.LayoutParams(m_size, m_size));
 			textView.setGravity(Gravity.CENTER_HORIZONTAL
 					| Gravity.CENTER_VERTICAL);
 
