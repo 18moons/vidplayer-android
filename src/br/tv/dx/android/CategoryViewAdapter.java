@@ -51,29 +51,35 @@ public class CategoryViewAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return m_categories.size();
+		return m_categories.size() + 1;
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return m_categories.get(position);
+		if (position == 0)
+			return null;
+		else
+			return m_categories.get(position - 1);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return m_categories.get(position).id;
+		if (position == 0)
+			return -1;
+		else
+			return m_categories.get(position - 1).id;
 	}
 
 	private static final int TV_TITLE_ID = 0;
 	private static final int TV_COUNT_ID = 1;
 	private static final int IV_BKG_ID = 2;
 
-	private boolean setBackground(ImageView v, CategoryData c) {
+	private void setBackground(ImageView v, CategoryData c) {
 		if (c.imgButton != null) {
 			try {
 				Bitmap img = BitmapFactory.decodeFile(c.imgButton);
 				v.setBackgroundDrawable(new BitmapDrawable(img));
-				return true;
+				return;
 			} catch (Exception e) {
 				Log.e(DXPlayerActivity.TAG, "Error setting background", e);
 			}
@@ -81,11 +87,9 @@ public class CategoryViewAdapter extends BaseAdapter {
 
 		try {
 			v.setBackgroundResource(R.drawable.item_bkg);
-			return true;
 		} catch (Exception e) {
 			Log.e(DXPlayerActivity.TAG, "Error setting background", e);
 		}
-		return false;
 	}
 
 	@Override
@@ -95,11 +99,12 @@ public class CategoryViewAdapter extends BaseAdapter {
 		TextView tvCount;
 		ImageView ivBkg;
 
-		boolean backgroundIsSet = false;
-
-		CategoryData category = m_categories.get(position);
-		if (category == null) {
-			return null;
+		CategoryData category = null;
+		if (position != 0) {
+			category = m_categories.get(position - 1);
+			if (category == null) {
+				return null;
+			}
 		}
 
 		if (convertView == null) { // if it's not recycled, initialise some
@@ -115,10 +120,7 @@ public class CategoryViewAdapter extends BaseAdapter {
 			ivBkg.setId(IV_BKG_ID);
 			ivBkg.setScaleType(ScaleType.CENTER);
 
-			backgroundIsSet = setBackground(ivBkg, category);
-
 			params = new RelativeLayout.LayoutParams(m_size, m_size);
-
 			params.addRule(RelativeLayout.CENTER_IN_PARENT);
 
 			layout.addView(ivBkg, params);
@@ -163,10 +165,13 @@ public class CategoryViewAdapter extends BaseAdapter {
 			ivBkg = (ImageView) layout.findViewById(IV_BKG_ID);
 		}
 
-		tvTitle.setText(category.title);
-		tvCount.setText(Integer.toString(category.count));
-
-		if (!backgroundIsSet) {
+		if (position == 0) {
+			tvTitle.setText("");
+			tvCount.setText("");
+			ivBkg.setBackgroundResource(R.drawable.logo_home);
+		} else {
+			tvTitle.setText(category.title);
+			tvCount.setText(Integer.toString(category.count));
 			setBackground(ivBkg, category);
 		}
 

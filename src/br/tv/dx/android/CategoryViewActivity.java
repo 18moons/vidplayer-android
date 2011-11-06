@@ -30,7 +30,7 @@ public class CategoryViewActivity extends Activity implements
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		if (parent.getId() == R.id.gvCategories) { // sanity check
+		if (parent.getId() == R.id.gvCategories && id != -1) { // sanity check
 			Intent intent = new Intent(this, AulasViewActivity.class);
 
 			intent.putExtra("id", (int) id);
