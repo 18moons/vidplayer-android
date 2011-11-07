@@ -117,6 +117,11 @@ public class XMLFileParser extends DefaultHandler {
 			break;
 		}
 
+		case teacher: {
+			m_item.teacher = chars;
+			break;
+		}
+
 		case subTitle: {
 			m_item.subTitle = chars;
 			break;
@@ -160,7 +165,7 @@ public class XMLFileParser extends DefaultHandler {
 	}
 
 	private enum XMLElements {
-		NULL, dxtv, background, category, title, image, items, item, subTitle, tags, tag, link, attachment, video;
+		NULL, dxtv, background, category, title, image, items, item, subTitle, tags, tag, teacher, link, attachment, video;
 
 		XMLElements() {
 		}
@@ -215,6 +220,8 @@ public class XMLFileParser extends DefaultHandler {
 					return XMLElements.tags;
 				} else if (str.equals("title")) {
 					return XMLElements.title;
+				} else if (str.equals("teacher")) {
+					return XMLElements.teacher;
 				}
 				break;
 			case 'v':

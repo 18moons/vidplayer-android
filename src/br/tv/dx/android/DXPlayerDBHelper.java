@@ -34,6 +34,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			+ " id_category integer,"
 			+ " title text,"
 			+ " sub_title text,"
+			+ " teacher text,"
 			+ " image text,"
 			+ " link text,"
 			+ " video text,"
@@ -307,7 +308,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 	static public void setItem(SQLiteDatabase db, ItemData data) {
 		if (m_stmtInsertItem == null) {
 			m_stmtInsertItem = db
-					.compileStatement("insert into items (id_file, id_category, title, sub_title, image, link, video) values (?, ?, ?, ?, ?, ?, ?)");
+					.compileStatement("insert into items (id_file, id_category, title, sub_title, teacher, image, link, video) values (?, ?, ?, ?, ?, ?, ?, ?)");
 
 			m_stmtSelectTag = db
 					.compileStatement("select id_tag from tags where tag = ?");
@@ -334,20 +335,25 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		else
 			m_stmtInsertItem.bindNull(4);
 
-		if (data.image != null)
-			m_stmtInsertItem.bindString(5, data.image);
+		if (data.teacher != null)
+			m_stmtInsertItem.bindString(5, data.teacher);
 		else
 			m_stmtInsertItem.bindNull(5);
 
-		if (data.link != null)
-			m_stmtInsertItem.bindString(6, data.link);
+		if (data.image != null)
+			m_stmtInsertItem.bindString(6, data.image);
 		else
 			m_stmtInsertItem.bindNull(6);
 
-		if (data.video != null)
-			m_stmtInsertItem.bindString(7, data.video);
+		if (data.link != null)
+			m_stmtInsertItem.bindString(7, data.link);
 		else
 			m_stmtInsertItem.bindNull(7);
+
+		if (data.video != null)
+			m_stmtInsertItem.bindString(8, data.video);
+		else
+			m_stmtInsertItem.bindNull(8);
 
 		long itemId = m_stmtInsertItem.executeInsert();
 
@@ -415,7 +421,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		String args[] = { Integer.toString(categoryId) };
 		Cursor stmt = db
 				.rawQuery(
-						"select id_item, id_file, title, sub_title, image, link, video from items where id_category = ? order by id_item",
+						"select id_item, id_file, title, sub_title, teacher, image, link, video from items where id_category = ? order by id_item",
 						args);
 
 		while (stmt.moveToNext()) {
@@ -425,9 +431,10 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			data.category = categoryId;
 			data.title = stmt.getString(2);
 			data.subTitle = stmt.getString(3);
-			data.image = stmt.getString(4);
-			data.link = stmt.getString(5);
-			data.video = stmt.getString(6);
+			data.teacher = stmt.getString(4);
+			data.image = stmt.getString(5);
+			data.link = stmt.getString(6);
+			data.video = stmt.getString(7);
 
 			// For now, this data is not used anywhere so don't bother loading
 			// addItemData(db, data);
@@ -445,7 +452,7 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		String args[] = { Integer.toString(itemId) };
 		Cursor stmt = db
 				.rawQuery(
-						"select id_item, id_file, id_category, title, sub_title, image, link, video from items where id_item = ?",
+						"select id_item, id_file, id_category, title, sub_title, teacher, image, link, video from items where id_item = ?",
 						args);
 
 		if (stmt.moveToNext()) {
@@ -454,9 +461,10 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 			result.category = stmt.getInt(2);
 			result.title = stmt.getString(3);
 			result.subTitle = stmt.getString(4);
-			result.image = stmt.getString(5);
-			result.link = stmt.getString(6);
-			result.video = stmt.getString(7);
+			result.teacher = stmt.getString(5);
+			result.image = stmt.getString(6);
+			result.link = stmt.getString(7);
+			result.video = stmt.getString(8);
 
 			addItemData(db, result);
 		}

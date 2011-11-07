@@ -16,20 +16,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.widget.GridView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-public class AulaVideoPlayer extends Activity implements OnClickListener,
-		OnTouchListener {
+public class AulaVideoPlayer extends Activity implements OnClickListener {
 
 	static final private int DIALOG_VIDEO_NOT_FOUND = 0;
 	static final private int DIALOG_VIDEO_PREPARE_ERROR = 1;
@@ -40,12 +36,13 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 	private RelativeLayout m_layDetails;
 
 	private TextView m_tvTitle;
+	private TextView m_tvCategory;
 	private TextView m_tvSubtitle;
+	private TextView m_tvTeacher;
 	private TextView m_tvLink;
 	private TextView m_tvAttachment;
 	private TextView m_tvBack;
-
-	private GridView m_gvTags;
+	private TextView m_tvTags;
 
 	private VideoView m_vvVideo;
 	private MediaController m_contoller;
@@ -72,12 +69,13 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 		m_layDetails = (RelativeLayout) findViewById(R.id.layDetails);
 
 		m_tvTitle = (TextView) findViewById(R.id.tvTitle);
+		m_tvCategory = (TextView) findViewById(R.id.tvCategory);
 		m_tvSubtitle = (TextView) findViewById(R.id.tvSubtitle);
+		m_tvTeacher = (TextView) findViewById(R.id.tvTeacher);
 		m_tvLink = (TextView) findViewById(R.id.tvLink);
 		m_tvAttachment = (TextView) findViewById(R.id.tvAttachment);
 		m_tvBack = (TextView) findViewById(R.id.tvBack);
-
-		m_gvTags = (GridView) findViewById(R.id.gvTags);
+		m_tvTags = (TextView) findViewById(R.id.tvTags);
 
 		m_vvVideo = (VideoView) findViewById(R.id.vvVideo);
 
@@ -88,11 +86,40 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 
 			m_item = DXPlayerDBHelper.getItem(db, extras.getInt("id"));
 
+			CategoryData category = DXPlayerDBHelper.getCategory(db,
+					m_item.category);
+
 			db.close();
 
-			m_tvTitle.setText(m_item.title);
-			m_tvSubtitle.setText(m_item.subTitle);
-			m_tvLink.setText(m_item.link);
+			if (m_item.title == null) {
+				m_tvTitle.setVisibility(View.GONE);
+			} else {
+				m_tvTitle.setText(m_item.title);
+			}
+
+			if (m_item.subTitle == null) {
+				m_tvSubtitle.setVisibility(View.GONE);
+			} else {
+				m_tvSubtitle.setText(m_item.subTitle);
+			}
+
+			if (m_item.teacher == null) {
+				m_tvTeacher.setVisibility(View.GONE);
+			} else {
+				m_tvTeacher.setText(m_item.teacher);
+			}
+
+			if (m_item.link == null) {
+				m_tvLink.setVisibility(View.GONE);
+			} else {
+				m_tvLink.setText(m_item.link);
+			}
+
+			if (category == null || category.title == null) {
+				m_tvCategory.setVisibility(View.GONE);
+			} else {
+				m_tvCategory.setText(category.title);
+			}
 
 			try {
 				if (!new File(m_item.video).exists()) {
@@ -133,11 +160,19 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 			m_tvLink.setOnClickListener(this);
 			m_tvAttachment.setOnClickListener(this);
 			m_tvBack.setOnClickListener(this);
-
+			m_contoller.setOnClickListener(this);
 			m_vvVideo.setOnClickListener(this);
-			m_vvVideo.setOnTouchListener(this);
 
-			m_gvTags.setAdapter(new TagsViewAdapter(m_item.tags, this));
+			String tags = "";
+			for (String s : m_item.tags) {
+				tags += s + " - ";
+			}
+
+			tags.trim();
+			if (tags.length() > 2)
+				m_tvTags.setText(tags.substring(0, tags.length() - 2));
+			else
+				m_tvTags.setVisibility(View.GONE);
 		}
 	}
 
@@ -191,21 +226,12 @@ public class AulaVideoPlayer extends Activity implements OnClickListener,
 
 		case R.id.rlLayout:
 			m_contoller.show();
-		case R.id.vvVideo: {
+		case R.id.vvVideo:
 			m_layDetails.setVisibility(View.VISIBLE);
 			m_tvBack.setVisibility(View.VISIBLE);
 			m_handler.sendEmptyMessageDelayed(++m_msgIndex, 3000);
 			break;
 		}
-		}
-	}
-
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		m_layDetails.setVisibility(View.VISIBLE);
-		m_tvBack.setVisibility(View.VISIBLE);
-		m_handler.sendEmptyMessageDelayed(++m_msgIndex, 3000);
-		return false;
 	}
 
 	@Override
