@@ -133,13 +133,19 @@ public class DXPlayerActivity extends Activity {
 			String path;
 
 			try {
-				File p = getExternalFilesDir(null);
-				path = p.getAbsolutePath();
+				if (android.os.Build.DEVICE.equalsIgnoreCase("tcc8900")) {
+					path = "/sdcard/tflash/Android/data/br.tv.dx.android/files";
+				} else {
+					File p = getExternalFilesDir(null);
+					path = p.getAbsolutePath();
+				}
 			} catch (Exception e) {
 				path = Environment.getExternalStorageDirectory()
 						.getAbsolutePath();
 				path += "/Android/data/br.tv.dx.android/files";
 			}
+			
+			//path="/mnt/sdcard/Android/data/br.tv.dx.android/files";
 
 			// TODO Debug
 			new File(path + "/midia/").mkdirs();
@@ -168,10 +174,10 @@ public class DXPlayerActivity extends Activity {
 				File files[] = dir.listFiles(new XmlFileNameFilter());
 
 				// TODO Debug
-				if (files.length == 0) {
+				/*if (files.length == 0) {
 					debugGetFiles(dir.getParent());
 					files = dir.listFiles(new XmlFileNameFilter());
-				}
+				}*/ 
 				// end debug
 
 				DXPlayerDBHelper helper = new DXPlayerDBHelper(
