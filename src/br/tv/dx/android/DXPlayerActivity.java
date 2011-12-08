@@ -150,9 +150,7 @@ public class DXPlayerActivity extends Activity {
 				path += "/Android/data/br.tv.dx.android/files";
 			}
 
-			// TODO Debug
 			new File(path + "/midia/").mkdirs();
-
 			path += "/xml/";
 
 			dir = new File(path);
