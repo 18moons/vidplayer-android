@@ -51,7 +51,12 @@ public class DXPlayerActivity extends Activity {
 		}
 	};
 
-	public void debugGetFiles(String outPath) {
+	/*
+	 * This method is only used in debug mode, so if it is never called, maybe
+	 * because the debug code is commented out, then its OK.
+	 */
+	@SuppressWarnings("unused")
+	private void debugGetFiles(String outPath) {
 		String urlBase = "http://bitforge.com.br/dx-player-android/samples/";
 		try {
 			URL url = new URL(urlBase + "files.lst");
@@ -144,8 +149,6 @@ public class DXPlayerActivity extends Activity {
 						.getAbsolutePath();
 				path += "/Android/data/br.tv.dx.android/files";
 			}
-			
-			//path="/mnt/sdcard/Android/data/br.tv.dx.android/files";
 
 			// TODO Debug
 			new File(path + "/midia/").mkdirs();
@@ -174,10 +177,10 @@ public class DXPlayerActivity extends Activity {
 				File files[] = dir.listFiles(new XmlFileNameFilter());
 
 				// TODO Debug
-				/*if (files.length == 0) {
-					debugGetFiles(dir.getParent());
-					files = dir.listFiles(new XmlFileNameFilter());
-				}*/ 
+				/*
+				 * if (files.length == 0) { debugGetFiles(dir.getParent());
+				 * files = dir.listFiles(new XmlFileNameFilter()); }
+				 */
 				// end debug
 
 				DXPlayerDBHelper helper = new DXPlayerDBHelper(
