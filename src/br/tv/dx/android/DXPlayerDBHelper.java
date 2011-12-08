@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDoneException;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
@@ -358,27 +359,38 @@ public class DXPlayerDBHelper extends SQLiteOpenHelper {
 		long itemId = m_stmtInsertItem.executeInsert();
 
 		for (String tag : data.tags) {
-
-			long tagId;
-
-			m_stmtSelectTag.bindString(1, tag);
 			try {
-				tagId = m_stmtSelectTag.simpleQueryForLong();
-			} catch (SQLiteDoneException e) {
-				m_stmtInsertTag.bindString(1, tag);
-				tagId = m_stmtInsertTag.executeInsert();
-			}
+				long tagId;
 
-			m_stmtInsertItemTags.bindLong(1, tagId);
-			m_stmtInsertItemTags.bindLong(2, itemId);
-			m_stmtInsertItemTags.execute();
+				m_stmtSelectTag.bindString(1, tag);
+				try {
+					tagId = m_stmtSelectTag.simpleQueryForLong();
+				} catch (SQLiteDoneException e) {
+					m_stmtInsertTag.bindString(1, tag);
+					tagId = m_stmtInsertTag.executeInsert();
+				}
+
+				m_stmtInsertItemTags.bindLong(1, tagId);
+				m_stmtInsertItemTags.bindLong(2, itemId);
+				m_stmtInsertItemTags.execute();
+			} catch (SQLiteException e) {
+				// This usually means more than 1 tag in the same
+				// item
+				Log.e(DXPlayerActivity.TAG, "Failed inserting tag: '" + tag
+						+ "'", e);
+			}
 		}
 
 		for (Attachment attach : data.attachments) {
-			m_stmtInsertAttachment.bindLong(1, itemId);
-			m_stmtInsertAttachment.bindString(2, attach.file);
-			m_stmtInsertAttachment.bindString(3, attach.type);
-			m_stmtInsertAttachment.execute();
+			try {
+				m_stmtInsertAttachment.bindLong(1, itemId);
+				m_stmtInsertAttachment.bindString(2, attach.file);
+				m_stmtInsertAttachment.bindString(3, attach.type);
+				m_stmtInsertAttachment.execute();
+			} catch (SQLiteException e) {
+				Log.e(DXPlayerActivity.TAG, "Failed inserting attachment: '"
+						+ attach + "'", e);
+			}
 		}
 	}
 
